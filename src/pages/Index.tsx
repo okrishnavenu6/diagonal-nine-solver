@@ -38,6 +38,7 @@ const Index = () => {
   const [score, setScore] = useState(0);
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState<"info" | "success" | "error" | "warning">("info");
+  const [hoveredCell, setHoveredCell] = useState<[number, number] | null>(null);
   const { toast } = useToast();
 
   const initializeGame = useCallback((diff: Difficulty) => {
@@ -354,11 +355,13 @@ const Index = () => {
 
         <div className="grid lg:grid-cols-[1fr,auto] gap-6 items-start">
           <div className="space-y-4">
-            <SudokuGrid
-              board={board}
-              selectedCell={selectedCell}
-              onCellSelect={handleCellSelect}
-            />
+        <SudokuGrid
+          board={board}
+          selectedCell={selectedCell}
+          hoveredCell={hoveredCell}
+          onCellSelect={handleCellSelect}
+          onCellHover={setHoveredCell}
+        />
 
             <NumberPad
               onNumberSelect={handleNumberInput}

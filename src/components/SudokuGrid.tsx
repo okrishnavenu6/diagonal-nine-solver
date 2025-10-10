@@ -6,10 +6,12 @@ import { cn } from "@/lib/utils";
 interface SudokuGridProps {
   board: SudokuBoard;
   selectedCell: [number, number] | null;
+  hoveredCell: [number, number] | null;
   onCellSelect: (row: number, col: number) => void;
+  onCellHover: (cell: [number, number] | null) => void;
 }
 
-export const SudokuGrid = ({ board, selectedCell, onCellSelect }: SudokuGridProps) => {
+export const SudokuGrid = ({ board, selectedCell, hoveredCell, onCellSelect, onCellHover }: SudokuGridProps) => {
   const getHighlightedCells = (): Set<string> => {
     if (!selectedCell || !board || board.length === 0) return new Set();
 
@@ -58,6 +60,30 @@ export const SudokuGrid = ({ board, selectedCell, onCellSelect }: SudokuGridProp
     return highlighted;
   };
 
+  const getHoverHighlightedCells = (): Set<string> => {
+    if (!hoveredCell || !board || board.length === 0) return new Set();
+
+    const [hoverRow, hoverCol] = hoveredCell;
+    const hoverHighlighted = new Set<string>();
+
+    // Highlight row and column of hovered cell
+    for (let i = 0; i < 9; i++) {
+      hoverHighlighted.add(`${hoverRow},${i}`);
+      hoverHighlighted.add(`${i},${hoverCol}`);
+    }
+
+    // Highlight 3x3 box of hovered cell
+    const boxStartRow = Math.floor(hoverRow / 3) * 3;
+    const boxStartCol = Math.floor(hoverCol / 3) * 3;
+    for (let r = boxStartRow; r < boxStartRow + 3; r++) {
+      for (let c = boxStartCol; c < boxStartCol + 3; c++) {
+        hoverHighlighted.add(`${r},${c}`);
+      }
+    }
+
+    return hoverHighlighted;
+  };
+
   const getConflictCells = (): Set<string> => {
     const conflicts = new Set<string>();
 
@@ -79,6 +105,7 @@ export const SudokuGrid = ({ board, selectedCell, onCellSelect }: SudokuGridProp
   };
 
   const highlightedCells = getHighlightedCells();
+  const hoverHighlightedCells = getHoverHighlightedCells();
   const conflictCells = getConflictCells();
 
   // Guard check for board initialization
@@ -105,7 +132,9 @@ export const SudokuGrid = ({ board, selectedCell, onCellSelect }: SudokuGridProp
           row.map((cell, colIndex) => {
             const key = `${rowIndex},${colIndex}`;
             const isSelected = selectedCell?.[0] === rowIndex && selectedCell?.[1] === colIndex;
-            const isHighlighted = highlightedCells.has(key) && !isSelected;
+            const isHovered = hoveredCell?.[0] === rowIndex && hoveredCell?.[1] === colIndex;
+            const isHoverHighlighted = hoverHighlightedCells.has(key) && !isHovered && !isSelected;
+            const isHighlighted = highlightedCells.has(key) && !isSelected && !isHovered;
             const isConflict = conflictCells.has(key);
             const isOnDiagonal = isOnAnyDiagonal(rowIndex, colIndex);
 
@@ -116,10 +145,13 @@ export const SudokuGrid = ({ board, selectedCell, onCellSelect }: SudokuGridProp
                 row={rowIndex}
                 col={colIndex}
                 isSelected={isSelected}
+                isHovered={isHovered}
+                isHoverHighlighted={isHoverHighlighted}
                 isHighlighted={isHighlighted}
                 isConflict={isConflict}
                 isOnDiagonal={isOnDiagonal}
                 onSelect={onCellSelect}
+                onHover={onCellHover}
               />
             );
           })

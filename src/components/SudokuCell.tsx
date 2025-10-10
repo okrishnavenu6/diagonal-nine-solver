@@ -34,22 +34,23 @@ export const SudokuCell = ({
       onClick={handleClick}
       className={cn(
         "relative w-full aspect-square flex items-center justify-center",
-        "font-semibold text-lg md:text-xl transition-all duration-200",
-        "border border-border hover:ring-2 hover:ring-primary/50 hover:z-10",
+        "font-semibold text-lg md:text-xl transition-all duration-300",
+        "border border-border/50 hover:ring-2 hover:ring-primary/70 hover:z-10",
         "focus:outline-none focus:ring-2 focus:ring-primary focus:z-10",
+        "hover:scale-105 transform",
         {
-          "bg-cell-given": cell.given,
-          "bg-cell-bg": !cell.given && !isSelected && !isHighlighted && !isConflict,
-          "bg-cell-selected": isSelected && !isConflict,
+          "bg-cell-given font-bold": cell.given,
+          "bg-cell-bg backdrop-blur-sm": !cell.given && !isSelected && !isHighlighted && !isConflict,
+          "bg-cell-selected ring-2 ring-primary glow scale-110": isSelected && !isConflict,
           "bg-cell-highlight": isHighlighted && !isSelected && !isConflict,
-          "bg-cell-error": isConflict,
-          "bg-cell-diagonal/50": isOnDiagonal && !cell.given && !isSelected && !isHighlighted && !isConflict,
-          "border-r-[3px] border-r-border": isRightBorder,
-          "border-b-[3px] border-b-border": isBottomBorder,
+          "bg-cell-error glow-error animate-pulse": isConflict,
+          "bg-gradient-to-br from-cell-diagonal/40 to-cell-diagonal/20": isOnDiagonal && !cell.given && !isSelected && !isHighlighted && !isConflict,
+          "border-r-[3px] border-r-primary/30": isRightBorder,
+          "border-b-[3px] border-b-primary/30": isBottomBorder,
           "text-foreground": cell.given,
-          "text-primary": !cell.given && cell.value !== 0,
-          "cursor-not-allowed opacity-70": cell.given,
-          "cursor-pointer": !cell.given,
+          "text-primary font-bold glow-success": !cell.given && cell.value !== 0,
+          "cursor-not-allowed opacity-60": cell.given,
+          "cursor-pointer hover:bg-cell-highlight": !cell.given,
         }
       )}
     >

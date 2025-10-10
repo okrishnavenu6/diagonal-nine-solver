@@ -336,14 +336,19 @@ const Index = () => {
   }, [selectedCell, isPencilMode, board, score]);
 
   return (
-    <div className="min-h-screen bg-background p-4 md:p-8">
-      <div className="max-w-6xl mx-auto space-y-6">
-        <header className="text-center space-y-2">
-          <h1 className="text-3xl md:text-4xl font-bold text-foreground">
+    <div className="min-h-screen p-4 md:p-8 relative overflow-hidden">
+      {/* Futuristic background effects */}
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-accent/5 pointer-events-none" />
+      <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl pointer-events-none animate-pulse" />
+      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-accent/10 rounded-full blur-3xl pointer-events-none animate-pulse" style={{ animationDelay: '1s' }} />
+      
+      <div className="max-w-6xl mx-auto space-y-6 relative z-10">
+        <header className="text-center space-y-3 animate-slide-up">
+          <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent animate-glow">
             Advanced Sudoku
           </h1>
-          <p className="text-muted-foreground text-sm md:text-base">
-            Classic rules + Diagonal uniqueness constraint
+          <p className="text-muted-foreground text-sm md:text-base font-medium">
+            Classic rules + Diagonal uniqueness constraint 🎯
           </p>
         </header>
 
@@ -390,14 +395,29 @@ const Index = () => {
               isPencilMode={isPencilMode}
             />
 
-            <div className="bg-card rounded-lg shadow-md p-4 space-y-2 text-sm text-muted-foreground">
-              <h3 className="font-semibold text-foreground">How to Play:</h3>
-              <ul className="space-y-1 list-disc list-inside">
-                <li>Fill each row, column, and 3×3 box with 1-9</li>
-                <li>Both diagonals must also contain 1-9</li>
-                <li>Use Pencil mode for candidate numbers</li>
-                <li>Press 1-9 keys or tap numbers</li>
-                <li>Delete/Backspace to clear cells</li>
+            <div className="bg-card rounded-xl shadow-2xl p-4 space-y-2 text-sm text-muted-foreground border border-primary/20 backdrop-blur-sm">
+              <h3 className="font-bold text-foreground text-base uppercase tracking-wider">How to Play:</h3>
+              <ul className="space-y-1.5">
+                <li className="flex items-start gap-2">
+                  <span className="text-primary mt-0.5">◆</span>
+                  <span>Fill each row, column, and 3×3 box with 1-9</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-primary mt-0.5">◆</span>
+                  <span>Both diagonals must also contain 1-9</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-primary mt-0.5">◆</span>
+                  <span>Use Pencil mode for candidate numbers</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-primary mt-0.5">◆</span>
+                  <span>Press 1-9 keys or tap numbers</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-primary mt-0.5">◆</span>
+                  <span>Delete/Backspace to clear cells</span>
+                </li>
               </ul>
             </div>
           </div>

@@ -16,9 +16,9 @@ const difficulties: { value: Difficulty; label: string; color: string }[] = [
 
 export const DifficultySelector = ({ currentDifficulty, onSelect }: DifficultySelectorProps) => {
   return (
-    <div className="bg-card rounded-lg shadow-md p-4">
-      <h3 className="text-sm font-semibold text-muted-foreground mb-3 text-center">
-        Difficulty
+    <div className="bg-card rounded-xl shadow-2xl p-4 border border-primary/20 backdrop-blur-sm">
+      <h3 className="text-sm font-bold text-foreground mb-3 text-center uppercase tracking-wider">
+        Difficulty Level
       </h3>
       <div className="flex flex-wrap items-center justify-center gap-2">
         {difficulties.map(({ value, label, color }) => (
@@ -27,9 +27,13 @@ export const DifficultySelector = ({ currentDifficulty, onSelect }: DifficultySe
             onClick={() => onSelect(value)}
             variant={currentDifficulty === value ? "default" : "outline"}
             size="sm"
-            className={cn("font-semibold", {
-              [color]: currentDifficulty === value,
-            })}
+            className={cn(
+              "font-semibold transition-all duration-300 hover:scale-110 border-2",
+              {
+                "glow animate-glow": currentDifficulty === value,
+                "hover:border-primary/50": currentDifficulty !== value,
+              }
+            )}
           >
             {label}
           </Button>

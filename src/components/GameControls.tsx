@@ -43,7 +43,7 @@ export const GameControls = ({
         onClick={onNewGame}
         variant="outline"
         size="sm"
-        className="flex items-center gap-2"
+        className="flex items-center gap-2 hover:scale-105 transition-all duration-300 border-primary/30 hover:glow"
       >
         <RotateCcw className="h-4 w-4" />
         New Game
@@ -54,7 +54,7 @@ export const GameControls = ({
         variant="outline"
         size="sm"
         disabled={!canUndo}
-        className="flex items-center gap-2"
+        className="flex items-center gap-2 hover:scale-105 transition-all duration-300 border-primary/30"
       >
         <Undo className="h-4 w-4" />
         Undo
@@ -65,7 +65,7 @@ export const GameControls = ({
         variant="outline"
         size="sm"
         disabled={!canRedo}
-        className="flex items-center gap-2"
+        className="flex items-center gap-2 hover:scale-105 transition-all duration-300 border-primary/30"
       >
         <Redo className="h-4 w-4" />
         Redo
@@ -75,8 +75,9 @@ export const GameControls = ({
         onClick={onTogglePencil}
         variant={isPencilMode ? "default" : "outline"}
         size="sm"
-        className={cn("flex items-center gap-2", {
-          "bg-primary text-primary-foreground": isPencilMode,
+        className={cn("flex items-center gap-2 transition-all duration-300 hover:scale-105", {
+          "glow animate-glow": isPencilMode,
+          "border-primary/30": !isPencilMode,
         })}
       >
         <Edit3 className="h-4 w-4" />
@@ -87,9 +88,9 @@ export const GameControls = ({
         onClick={onHint}
         variant="outline"
         size="sm"
-        className="flex items-center gap-2"
+        className="flex items-center gap-2 hover:scale-105 transition-all duration-300 border-warning/30 hover:bg-warning/10"
       >
-        <Lightbulb className="h-4 w-4" />
+        <Lightbulb className="h-4 w-4 text-warning" />
         Hint
       </Button>
 
@@ -97,9 +98,9 @@ export const GameControls = ({
         onClick={onValidate}
         variant="outline"
         size="sm"
-        className="flex items-center gap-2"
+        className="flex items-center gap-2 hover:scale-105 transition-all duration-300 border-success/30 hover:bg-success/10"
       >
-        <CheckCircle className="h-4 w-4" />
+        <CheckCircle className="h-4 w-4 text-success" />
         Validate
       </Button>
 
@@ -107,12 +108,12 @@ export const GameControls = ({
         onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
         variant="outline"
         size="sm"
-        className="flex items-center gap-2"
+        className="flex items-center gap-2 hover:scale-105 transition-all duration-300 border-primary/30"
       >
         {theme === "dark" ? (
-          <Sun className="h-4 w-4" />
+          <Sun className="h-4 w-4 text-warning" />
         ) : (
-          <Moon className="h-4 w-4" />
+          <Moon className="h-4 w-4 text-primary" />
         )}
       </Button>
     </div>

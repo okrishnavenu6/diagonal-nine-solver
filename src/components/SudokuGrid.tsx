@@ -11,11 +11,11 @@ interface SudokuGridProps {
 
 export const SudokuGrid = ({ board, selectedCell, onCellSelect }: SudokuGridProps) => {
   const getHighlightedCells = (): Set<string> => {
-    if (!selectedCell) return new Set();
+    if (!selectedCell || !board || board.length === 0) return new Set();
 
     const [selRow, selCol] = selectedCell;
     const highlighted = new Set<string>();
-    const selectedValue = board[selRow][selCol].value;
+    const selectedValue = board[selRow]?.[selCol]?.value;
 
     // Highlight row and column
     for (let i = 0; i < 9; i++) {
@@ -45,10 +45,10 @@ export const SudokuGrid = ({ board, selectedCell, onCellSelect }: SudokuGridProp
     }
 
     // Highlight cells with the same value
-    if (selectedValue !== 0) {
+    if (selectedValue !== 0 && selectedValue !== undefined) {
       for (let r = 0; r < 9; r++) {
         for (let c = 0; c < 9; c++) {
-          if (board[r][c].value === selectedValue) {
+          if (board[r]?.[c]?.value === selectedValue) {
             highlighted.add(`${r},${c}`);
           }
         }
@@ -61,9 +61,11 @@ export const SudokuGrid = ({ board, selectedCell, onCellSelect }: SudokuGridProp
   const getConflictCells = (): Set<string> => {
     const conflicts = new Set<string>();
 
+    if (!board || board.length === 0) return conflicts;
+
     for (let row = 0; row < 9; row++) {
       for (let col = 0; col < 9; col++) {
-        if (board[row][col].value !== 0) {
+        if (board[row]?.[col]?.value !== 0) {
           const cellConflicts = getConflicts(board, row, col);
           if (cellConflicts.length > 0) {
             conflicts.add(`${row},${col}`);
@@ -79,12 +81,24 @@ export const SudokuGrid = ({ board, selectedCell, onCellSelect }: SudokuGridProp
   const highlightedCells = getHighlightedCells();
   const conflictCells = getConflictCells();
 
+  // Guard check for board initialization
+  if (!board || board.length === 0) {
+    return (
+      <div className="bg-card rounded-lg shadow-lg p-2 md:p-4">
+        <div className="aspect-square w-full max-w-[600px] mx-auto flex items-center justify-center">
+          <div className="text-muted-foreground">Loading puzzle...</div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="bg-card rounded-lg shadow-lg p-2 md:p-4">
+    <div className="bg-card rounded-xl shadow-2xl p-2 md:p-4 border border-primary/20 backdrop-blur-sm">
       <div 
         className={cn(
-          "grid grid-cols-9 gap-0 bg-border p-[2px]",
-          "aspect-square w-full max-w-[600px] mx-auto"
+          "grid grid-cols-9 gap-0 bg-gradient-to-br from-primary/10 to-accent/10 p-[3px]",
+          "aspect-square w-full max-w-[600px] mx-auto rounded-lg overflow-hidden",
+          "shadow-[0_0_30px_rgba(99,102,241,0.3)]"
         )}
       >
         {board.map((row, rowIndex) =>

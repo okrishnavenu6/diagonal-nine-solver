@@ -301,9 +301,14 @@ const Index = () => {
       counts[i] = 9;
     }
 
+    // Guard: Check if board is initialized
+    if (!board || board.length === 0) {
+      return counts;
+    }
+
     for (let row = 0; row < 9; row++) {
       for (let col = 0; col < 9; col++) {
-        const value = board[row][col].value;
+        const value = board[row][col]?.value;
         if (value !== 0) {
           counts[value]--;
         }

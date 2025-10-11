@@ -42,37 +42,49 @@ export const GameStatus = ({ time, score, message, messageType }: GameStatusProp
   };
 
   return (
-    <div className="bg-card rounded-xl shadow-2xl p-4 space-y-3 border border-primary/20 backdrop-blur-sm animate-slide-up">
-      <div className="flex items-center justify-around gap-4">
-        <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary/10 border border-primary/20">
-          <Clock className="h-5 w-5 text-primary animate-pulse" />
-          <span className="text-lg font-semibold tabular-nums">{formatTime(time)}</span>
+    <div className="group relative bg-gradient-to-br from-card via-card to-card/50 rounded-3xl shadow-[0_8px_40px_rgba(0,0,0,0.4)] p-5 md:p-7 space-y-5 border-2 border-primary/40 backdrop-blur-2xl hover:border-primary/60 transition-all duration-500 hover:shadow-[0_0_60px_rgba(var(--primary-rgb),0.4)]">
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 rounded-3xl pointer-events-none" />
+      
+      <div className="relative flex justify-between items-center gap-4">
+        <div className="flex items-center gap-4 flex-1">
+          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+            <Clock className="w-7 h-7 text-primary-foreground animate-pulse" />
+          </div>
+          <div>
+            <p className="text-xs text-muted-foreground font-black uppercase tracking-widest">Time Elapsed</p>
+            <p className="text-3xl md:text-4xl font-black text-foreground drop-shadow-lg">{formatTime(time)}</p>
+          </div>
         </div>
-
-        <div className="h-8 w-px bg-gradient-to-b from-transparent via-border to-transparent" />
-
-        <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-warning/10 border border-warning/20">
-          <Trophy className="h-5 w-5 text-warning animate-pulse-scale" />
-          <span className="text-lg font-semibold tabular-nums">{score}</span>
+        <div className="flex items-center gap-4 flex-1 justify-end">
+          <div>
+            <p className="text-xs text-muted-foreground font-black uppercase tracking-widest text-right">Score</p>
+            <p className="text-3xl md:text-4xl font-black text-transparent bg-gradient-to-r from-accent to-primary bg-clip-text drop-shadow-lg text-right">{score}</p>
+          </div>
+          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-accent to-accent/60 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+            <Trophy className="w-7 h-7 text-accent-foreground animate-bounce-subtle" />
+          </div>
         </div>
       </div>
 
       {message && (
         <div
           className={cn(
-            "flex items-center gap-2 p-3 rounded-lg bg-secondary/50 text-sm border backdrop-blur-sm",
-            "animate-slide-up transition-all duration-300",
-            getMessageColor(),
+            "relative p-4 rounded-2xl text-sm font-bold backdrop-blur-sm animate-fade-in border-2 shadow-lg overflow-hidden",
             {
-              "border-success/30 bg-success/10": messageType === "success",
-              "border-destructive/30 bg-destructive/10": messageType === "error",
-              "border-warning/30 bg-warning/10": messageType === "warning",
-              "border-primary/20 bg-primary/5": messageType === "info",
+              "bg-primary/20 text-primary border-primary/40 shadow-[0_0_20px_rgba(99,102,241,0.3)]": messageType === "info",
+              "bg-green-500/20 text-green-600 dark:text-green-400 border-green-500/40 shadow-[0_0_20px_rgba(34,197,94,0.3)]": messageType === "success",
+              "bg-destructive/20 text-destructive border-destructive/40 shadow-[0_0_20px_rgba(239,68,68,0.3)] animate-pulse-subtle": messageType === "error",
+              "bg-yellow-500/20 text-yellow-600 dark:text-yellow-400 border-yellow-500/40 shadow-[0_0_20px_rgba(234,179,8,0.3)]": messageType === "warning",
             }
           )}
         >
-          {getMessageIcon()}
-          <span className="flex-1 font-medium">{message}</span>
+          <div className="relative z-10">{message}</div>
+          <div className={cn("absolute inset-0 opacity-20", {
+            "bg-gradient-to-r from-transparent via-primary to-transparent": messageType === "info",
+            "bg-gradient-to-r from-transparent via-green-500 to-transparent": messageType === "success",
+            "bg-gradient-to-r from-transparent via-destructive to-transparent": messageType === "error",
+            "bg-gradient-to-r from-transparent via-yellow-500 to-transparent": messageType === "warning",
+          })} />
         </div>
       )}
     </div>

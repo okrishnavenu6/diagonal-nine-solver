@@ -120,12 +120,14 @@ export const SudokuGrid = ({ board, selectedCell, hoveredCell, onCellSelect, onC
   }
 
   return (
-    <div className="bg-card rounded-xl shadow-2xl p-2 md:p-4 border border-primary/20 backdrop-blur-sm">
+    <div className="group relative bg-gradient-to-br from-card/90 via-card to-card/80 rounded-3xl shadow-[0_8px_40px_rgba(0,0,0,0.4)] p-3 md:p-6 border-2 border-primary/40 backdrop-blur-2xl hover:border-primary/60 transition-all duration-500 hover:shadow-[0_0_60px_rgba(var(--primary-rgb),0.4)]">
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 rounded-3xl pointer-events-none" />
       <div 
         className={cn(
-          "grid grid-cols-9 gap-0 bg-gradient-to-br from-primary/10 to-accent/10 p-[3px]",
-          "aspect-square w-full max-w-[600px] mx-auto rounded-lg overflow-hidden",
-          "shadow-[0_0_30px_rgba(99,102,241,0.3)]"
+          "relative grid grid-cols-9 gap-0 bg-gradient-to-br from-primary/20 via-background/50 to-accent/20 p-1",
+          "aspect-square w-full max-w-[600px] mx-auto rounded-2xl overflow-hidden",
+          "shadow-[inset_0_0_40px_rgba(var(--primary-rgb),0.2),0_0_40px_rgba(var(--primary-rgb),0.3)]",
+          "border border-primary/30"
         )}
       >
         {board.map((row, rowIndex) =>

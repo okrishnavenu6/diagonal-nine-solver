@@ -146,11 +146,42 @@ const Index = () => {
       cell.value = num;
       cell.pencilMarks.clear();
 
-      // Update pencil marks in related cells
-      for (let r = 0; r < 9; r++) {
-        for (let c = 0; c < 9; c++) {
-          if (newBoard[r][c].value === 0) {
-            newBoard[r][c].pencilMarks = getCandidates(newBoard, r, c);
+      // Remove this number from pencil marks in related cells (row, column, box, diagonals)
+      const boxStartRow = Math.floor(row / 3) * 3;
+      const boxStartCol = Math.floor(col / 3) * 3;
+      
+      for (let i = 0; i < 9; i++) {
+        // Clear from same row
+        if (newBoard[row][i].pencilMarks.has(num)) {
+          newBoard[row][i].pencilMarks.delete(num);
+        }
+        // Clear from same column
+        if (newBoard[i][col].pencilMarks.has(num)) {
+          newBoard[i][col].pencilMarks.delete(num);
+        }
+      }
+      
+      // Clear from same 3x3 box
+      for (let r = boxStartRow; r < boxStartRow + 3; r++) {
+        for (let c = boxStartCol; c < boxStartCol + 3; c++) {
+          if (newBoard[r][c].pencilMarks.has(num)) {
+            newBoard[r][c].pencilMarks.delete(num);
+          }
+        }
+      }
+      
+      // Clear from diagonals if applicable
+      if (row === col) {
+        for (let i = 0; i < 9; i++) {
+          if (newBoard[i][i].pencilMarks.has(num)) {
+            newBoard[i][i].pencilMarks.delete(num);
+          }
+        }
+      }
+      if (row + col === 8) {
+        for (let i = 0; i < 9; i++) {
+          if (newBoard[i][8 - i].pencilMarks.has(num)) {
+            newBoard[i][8 - i].pencilMarks.delete(num);
           }
         }
       }
@@ -338,18 +369,23 @@ const Index = () => {
 
   return (
     <div className="min-h-screen p-4 md:p-8 relative overflow-hidden">
-      {/* Futuristic background effects */}
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-accent/5 pointer-events-none" />
-      <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl pointer-events-none animate-pulse" />
-      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-accent/10 rounded-full blur-3xl pointer-events-none animate-pulse" style={{ animationDelay: '1s' }} />
+      {/* Enhanced futuristic background effects */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/20 via-background to-background pointer-events-none" />
+      <div className="absolute inset-0 bg-grid-pattern opacity-10 pointer-events-none" />
+      <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-primary/20 rounded-full blur-[120px] pointer-events-none animate-float" />
+      <div className="absolute bottom-0 right-1/4 w-[600px] h-[600px] bg-accent/20 rounded-full blur-[120px] pointer-events-none animate-float-delayed" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/5 rounded-full blur-[150px] pointer-events-none animate-pulse-slow" />
       
-      <div className="max-w-6xl mx-auto space-y-6 relative z-10">
-        <header className="text-center space-y-3 animate-slide-up">
-          <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent animate-glow">
-            Advanced Sudoku
-          </h1>
-          <p className="text-muted-foreground text-sm md:text-base font-medium">
-            Classic rules + Diagonal uniqueness constraint 🎯
+      <div className="max-w-6xl mx-auto space-y-8 relative z-10">
+        <header className="text-center space-y-4 animate-fade-in">
+          <div className="relative inline-block">
+            <h1 className="text-5xl md:text-7xl font-black bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent animate-glow drop-shadow-2xl">
+              SUDOKU X
+            </h1>
+            <div className="absolute inset-0 bg-gradient-to-r from-primary/20 via-accent/20 to-primary/20 blur-3xl -z-10 animate-pulse" />
+          </div>
+          <p className="text-muted-foreground text-base md:text-lg font-semibold tracking-wide">
+            ⚡ Diagonal Constraint Mode • 9×9 Grid Challenge
           </p>
         </header>
 
@@ -398,28 +434,33 @@ const Index = () => {
               isPencilMode={isPencilMode}
             />
 
-            <div className="bg-card rounded-xl shadow-2xl p-4 space-y-2 text-sm text-muted-foreground border border-primary/20 backdrop-blur-sm">
-              <h3 className="font-bold text-foreground text-base uppercase tracking-wider">How to Play:</h3>
-              <ul className="space-y-1.5">
-                <li className="flex items-start gap-2">
-                  <span className="text-primary mt-0.5">◆</span>
-                  <span>Fill each row, column, and 3×3 box with 1-9</span>
+            <div className="group bg-gradient-to-br from-card via-card to-card/50 rounded-2xl shadow-2xl p-6 space-y-3 text-sm border border-primary/30 backdrop-blur-xl hover:border-primary/50 transition-all duration-300 hover:shadow-[0_0_40px_rgba(var(--primary-rgb),0.3)]">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg">
+                  <span className="text-2xl">🎯</span>
+                </div>
+                <h3 className="font-black text-foreground text-lg uppercase tracking-wider">Game Rules</h3>
+              </div>
+              <ul className="space-y-2.5 text-muted-foreground">
+                <li className="flex items-start gap-3 group/item hover:text-foreground transition-colors">
+                  <span className="text-primary mt-1 text-lg group-hover/item:scale-125 transition-transform">▸</span>
+                  <span className="flex-1">Fill each <strong className="text-foreground">row, column, and 3×3 box</strong> with digits 1-9</span>
                 </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-primary mt-0.5">◆</span>
-                  <span>Both diagonals must also contain 1-9</span>
+                <li className="flex items-start gap-3 group/item hover:text-foreground transition-colors">
+                  <span className="text-accent mt-1 text-lg group-hover/item:scale-125 transition-transform">▸</span>
+                  <span className="flex-1"><strong className="text-foreground">Both main diagonals</strong> must contain unique 1-9</span>
                 </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-primary mt-0.5">◆</span>
-                  <span>Use Pencil mode for candidate numbers</span>
+                <li className="flex items-start gap-3 group/item hover:text-foreground transition-colors">
+                  <span className="text-primary mt-1 text-lg group-hover/item:scale-125 transition-transform">▸</span>
+                  <span className="flex-1">Toggle <strong className="text-foreground">Pencil mode</strong> to add candidate numbers</span>
                 </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-primary mt-0.5">◆</span>
-                  <span>Press 1-9 keys or tap numbers</span>
+                <li className="flex items-start gap-3 group/item hover:text-foreground transition-colors">
+                  <span className="text-accent mt-1 text-lg group-hover/item:scale-125 transition-transform">▸</span>
+                  <span className="flex-1">Use <strong className="text-foreground">keyboard 1-9</strong> or tap number pad</span>
                 </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-primary mt-0.5">◆</span>
-                  <span>Delete/Backspace to clear cells</span>
+                <li className="flex items-start gap-3 group/item hover:text-foreground transition-colors">
+                  <span className="text-primary mt-1 text-lg group-hover/item:scale-125 transition-transform">▸</span>
+                  <span className="flex-1">Press <strong className="text-foreground">Del/Backspace</strong> to clear cells</span>
                 </li>
               </ul>
             </div>

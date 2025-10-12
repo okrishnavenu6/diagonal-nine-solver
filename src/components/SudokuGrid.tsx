@@ -13,17 +13,21 @@ interface SudokuGridProps {
 
 export const SudokuGrid = ({ board, selectedCell, hoveredCell, onCellSelect, onCellHover }: SudokuGridProps) => {
   const getSameNumberCells = (): Set<string> => {
-    if (!selectedCell || !board || board.length === 0) return new Set();
+    if (!board || board.length === 0) return new Set();
 
-    const [selRow, selCol] = selectedCell;
+    // Check both selected and hovered cells
+    const targetCell = hoveredCell || selectedCell;
+    if (!targetCell) return new Set();
+
+    const [targetRow, targetCol] = targetCell;
     const sameNumber = new Set<string>();
-    const selectedValue = board[selRow]?.[selCol]?.value;
+    const targetValue = board[targetRow]?.[targetCol]?.value;
 
-    // Highlight all cells with the same value
-    if (selectedValue !== 0 && selectedValue !== undefined) {
+    // Highlight all cells with the same value across the entire grid
+    if (targetValue !== 0 && targetValue !== undefined) {
       for (let r = 0; r < 9; r++) {
         for (let c = 0; c < 9; c++) {
-          if (board[r]?.[c]?.value === selectedValue) {
+          if (board[r]?.[c]?.value === targetValue) {
             sameNumber.add(`${r},${c}`);
           }
         }
@@ -130,14 +134,15 @@ export const SudokuGrid = ({ board, selectedCell, hoveredCell, onCellSelect, onC
   }
 
   return (
-    <div className="group relative bg-gradient-to-br from-card/90 via-card to-card/80 rounded-3xl shadow-[0_8px_40px_rgba(0,0,0,0.4)] p-3 md:p-6 border-4 animate-rainbow-border backdrop-blur-2xl transition-all duration-500">
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 rounded-3xl pointer-events-none" />
+    <div className="group relative bg-gradient-to-br from-card/95 via-card to-card/90 rounded-3xl shadow-[0_12px_60px_rgba(0,0,0,0.5),0_0_80px_rgba(var(--primary-rgb),0.3)] p-3 md:p-6 border-[6px] animate-rainbow-border backdrop-blur-3xl transition-all duration-500 hover:shadow-[0_16px_80px_rgba(0,0,0,0.6),0_0_100px_rgba(var(--primary-rgb),0.4)]">
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-accent/10 rounded-3xl pointer-events-none animate-pulse" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(var(--primary-rgb),0.1),transparent_70%)] rounded-3xl pointer-events-none" />
       <div 
         className={cn(
-          "relative grid grid-cols-9 gap-0 bg-gradient-to-br from-primary/20 via-background/50 to-accent/20 p-1",
+          "relative grid grid-cols-9 gap-0 bg-gradient-to-br from-primary/25 via-background/60 to-accent/25 p-1",
           "aspect-square w-full max-w-[600px] mx-auto rounded-2xl overflow-hidden",
-          "shadow-[inset_0_0_40px_rgba(var(--primary-rgb),0.2),0_0_40px_rgba(var(--primary-rgb),0.3)]",
-          "border border-primary/30"
+          "shadow-[inset_0_0_50px_rgba(var(--primary-rgb),0.25),0_0_50px_rgba(var(--primary-rgb),0.35)]",
+          "border-2 border-primary/40"
         )}
       >
         {board.map((row, rowIndex) =>

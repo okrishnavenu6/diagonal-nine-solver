@@ -240,33 +240,29 @@ All colors MUST be HSL.
   }
 
   @keyframes rainbow-border {
-    0% {
-      border-color: hsl(0, 100%, 50%);
-      box-shadow: 0 0 30px hsl(0, 100%, 50%);
+    0%, 100% {
+      border-color: hsl(0, 100%, 60%);
+      box-shadow: 0 0 40px hsl(0, 100%, 60% / 0.6), 0 0 80px hsl(0, 100%, 60% / 0.3), inset 0 0 30px hsl(0, 100%, 60% / 0.2);
     }
     16.67% {
-      border-color: hsl(60, 100%, 50%);
-      box-shadow: 0 0 30px hsl(60, 100%, 50%);
+      border-color: hsl(60, 100%, 60%);
+      box-shadow: 0 0 40px hsl(60, 100%, 60% / 0.6), 0 0 80px hsl(60, 100%, 60% / 0.3), inset 0 0 30px hsl(60, 100%, 60% / 0.2);
     }
     33.33% {
-      border-color: hsl(120, 100%, 50%);
-      box-shadow: 0 0 30px hsl(120, 100%, 50%);
+      border-color: hsl(120, 100%, 60%);
+      box-shadow: 0 0 40px hsl(120, 100%, 60% / 0.6), 0 0 80px hsl(120, 100%, 60% / 0.3), inset 0 0 30px hsl(120, 100%, 60% / 0.2);
     }
     50% {
-      border-color: hsl(180, 100%, 50%);
-      box-shadow: 0 0 30px hsl(180, 100%, 50%);
+      border-color: hsl(180, 100%, 60%);
+      box-shadow: 0 0 40px hsl(180, 100%, 60% / 0.6), 0 0 80px hsl(180, 100%, 60% / 0.3), inset 0 0 30px hsl(180, 100%, 60% / 0.2);
     }
     66.67% {
-      border-color: hsl(240, 100%, 50%);
-      box-shadow: 0 0 30px hsl(240, 100%, 50%);
+      border-color: hsl(240, 100%, 65%);
+      box-shadow: 0 0 40px hsl(240, 100%, 65% / 0.6), 0 0 80px hsl(240, 100%, 65% / 0.3), inset 0 0 30px hsl(240, 100%, 65% / 0.2);
     }
     83.33% {
-      border-color: hsl(300, 100%, 50%);
-      box-shadow: 0 0 30px hsl(300, 100%, 50%);
-    }
-    100% {
-      border-color: hsl(0, 100%, 50%);
-      box-shadow: 0 0 30px hsl(0, 100%, 50%);
+      border-color: hsl(300, 100%, 65%);
+      box-shadow: 0 0 40px hsl(300, 100%, 65% / 0.6), 0 0 80px hsl(300, 100%, 65% / 0.3), inset 0 0 30px hsl(300, 100%, 65% / 0.2);
     }
   }
 
@@ -323,7 +319,7 @@ All colors MUST be HSL.
   }
 
   .animate-rainbow-border {
-    animation: rainbow-border 3s linear infinite;
+    animation: rainbow-border 2.5s linear infinite;
   }
 
   .animate-confetti {

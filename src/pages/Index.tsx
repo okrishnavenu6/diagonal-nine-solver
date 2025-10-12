@@ -4,6 +4,9 @@ import { GameControls } from "@/components/GameControls";
 import { NumberPad } from "@/components/NumberPad";
 import { GameStatus } from "@/components/GameStatus";
 import { DifficultySelector } from "@/components/DifficultySelector";
+import { Button } from "@/components/ui/button";
+import { Moon, Sun, Sparkles } from "lucide-react";
+import { useTheme } from "next-themes";
 import {
   generatePuzzle,
   deepCopyBoard,
@@ -39,7 +42,10 @@ const Index = () => {
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState<"info" | "success" | "error" | "warning">("info");
   const [hoveredCell, setHoveredCell] = useState<[number, number] | null>(null);
+  const [isGameWon, setIsGameWon] = useState(false);
+  const [showConfetti, setShowConfetti] = useState(false);
   const { toast } = useToast();
+  const { theme, setTheme } = useTheme();
 
   const initializeGame = useCallback((diff: Difficulty) => {
     const { puzzle, solution: sol } = generatePuzzle(diff);
@@ -52,6 +58,8 @@ const Index = () => {
     setScore(0);
     setMessage("Game started! Fill the grid following Sudoku rules including diagonal constraints.");
     setMessageType("info");
+    setIsGameWon(false);
+    setShowConfetti(false);
   }, []);
 
   useEffect(() => {
@@ -195,10 +203,13 @@ const Index = () => {
       if (isPuzzleComplete(newBoard)) {
         setMessage("🎉 Congratulations! You solved the puzzle!");
         setMessageType("success");
+        setIsGameWon(true);
+        setShowConfetti(true);
         toast({
-          title: "Puzzle Solved!",
+          title: "🎉 VICTORY!",
           description: `You completed the puzzle in ${Math.floor(time / 60)}:${(time % 60).toString().padStart(2, "0")} with a score of ${score + 10}!`,
         });
+        setTimeout(() => setShowConfetti(false), 5000);
       }
     }
   };
@@ -369,6 +380,32 @@ const Index = () => {
 
   return (
     <div className="min-h-screen p-4 md:p-8 relative overflow-hidden">
+      {/* Confetti animation on win */}
+      {showConfetti && (
+        <div className="fixed inset-0 pointer-events-none z-50 overflow-hidden">
+          {Array.from({ length: 50 }).map((_, i) => (
+            <div
+              key={i}
+              className="absolute animate-confetti"
+              style={{
+                left: `${Math.random() * 100}%`,
+                top: `-${Math.random() * 20}%`,
+                animationDelay: `${Math.random() * 2}s`,
+                animationDuration: `${2 + Math.random() * 2}s`,
+              }}
+            >
+              <Sparkles 
+                className="text-primary" 
+                size={20 + Math.random() * 20}
+                style={{
+                  color: `hsl(${Math.random() * 360}, 100%, 50%)`,
+                }}
+              />
+            </div>
+          ))}
+        </div>
+      )}
+
       {/* Enhanced futuristic background effects */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/20 via-background to-background pointer-events-none" />
       <div className="absolute inset-0 bg-grid-pattern opacity-10 pointer-events-none" />
@@ -376,10 +413,24 @@ const Index = () => {
       <div className="absolute bottom-0 right-1/4 w-[600px] h-[600px] bg-accent/20 rounded-full blur-[120px] pointer-events-none animate-float-delayed" />
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/5 rounded-full blur-[150px] pointer-events-none animate-pulse-slow" />
       
-      <div className="max-w-6xl mx-auto space-y-8 relative z-10">
+      {/* Dark mode toggle */}
+      <div className="fixed top-4 right-4 z-50">
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+          className="rounded-full w-12 h-12 bg-card/90 backdrop-blur-xl border-primary/30 hover:border-primary/60 hover:shadow-[0_0_20px_rgba(var(--primary-rgb),0.4)] transition-all duration-300"
+        >
+          <Sun className="h-6 w-6 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+          <Moon className="absolute h-6 w-6 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+          <span className="sr-only">Toggle theme</span>
+        </Button>
+      </div>
+      
+      <div className="max-w-[1600px] mx-auto space-y-8 relative z-10">
         <header className="text-center space-y-4 animate-fade-in">
           <div className="relative inline-block">
-            <h1 className="text-5xl md:text-7xl font-black bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent animate-glow drop-shadow-2xl">
+            <h1 className={`text-5xl md:text-7xl font-black bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent drop-shadow-2xl ${isGameWon ? 'animate-victory' : 'animate-glow'}`}>
               SUDOKU X
             </h1>
             <div className="absolute inset-0 bg-gradient-to-r from-primary/20 via-accent/20 to-primary/20 blur-3xl -z-10 animate-pulse" />
@@ -389,16 +440,9 @@ const Index = () => {
           </p>
         </header>
 
-        <div className="grid lg:grid-cols-[1fr,auto] gap-6 items-start">
-          <div className="space-y-4">
-        <SudokuGrid
-          board={board}
-          selectedCell={selectedCell}
-          hoveredCell={hoveredCell}
-          onCellSelect={handleCellSelect}
-          onCellHover={setHoveredCell}
-        />
-
+        <div className="grid xl:grid-cols-[auto,1fr,auto] gap-6 items-start justify-center">
+          {/* Left sidebar - Number pad */}
+          <div className="xl:block hidden">
             <NumberPad
               onNumberSelect={handleNumberInput}
               onClear={handleClear}
@@ -406,7 +450,28 @@ const Index = () => {
             />
           </div>
 
-          <div className="space-y-4 lg:w-80">
+          {/* Center - Grid */}
+          <div className="space-y-4">
+            <SudokuGrid
+              board={board}
+              selectedCell={selectedCell}
+              hoveredCell={hoveredCell}
+              onCellSelect={handleCellSelect}
+              onCellHover={setHoveredCell}
+            />
+
+            {/* Number pad for mobile/tablet */}
+            <div className="xl:hidden">
+              <NumberPad
+                onNumberSelect={handleNumberInput}
+                onClear={handleClear}
+                remainingNumbers={getRemainingNumbers()}
+              />
+            </div>
+          </div>
+
+          {/* Right sidebar - Controls */}
+          <div className="space-y-4 xl:w-80 w-full">
             <GameStatus
               time={time}
               score={score}

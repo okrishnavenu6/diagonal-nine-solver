@@ -7,6 +7,7 @@ interface SudokuCellProps {
   col: number;
   isSelected: boolean;
   isHovered: boolean;
+  isSameNumber: boolean;
   isHoverHighlighted: boolean;
   isHighlighted: boolean;
   isConflict: boolean;
@@ -21,6 +22,7 @@ export const SudokuCell = ({
   col,
   isSelected,
   isHovered,
+  isSameNumber,
   isHoverHighlighted,
   isHighlighted,
   isConflict,
@@ -56,13 +58,14 @@ export const SudokuCell = ({
         "transform hover:z-10",
         {
           "bg-gradient-to-br from-cell-given to-cell-given/80 font-black text-foreground/90 shadow-inner": cell.given,
-          "bg-cell-bg/80 backdrop-blur-sm hover:bg-cell-bg": !cell.given && !isSelected && !isHovered && !isHoverHighlighted && !isHighlighted && !isConflict,
+          "bg-cell-bg/80 backdrop-blur-sm hover:bg-cell-bg": !cell.given && !isSelected && !isHovered && !isSameNumber && !isHoverHighlighted && !isHighlighted && !isConflict,
           "bg-gradient-to-br from-cell-selected via-cell-selected to-primary/60 ring-4 ring-primary/70 shadow-[0_0_25px_rgba(var(--primary-rgb),0.6)] scale-[1.12] z-30 animate-pulse-subtle": isSelected && !isConflict,
           "bg-gradient-to-br from-primary/30 to-primary/20 ring-2 ring-primary/60 scale-[1.08] z-20 shadow-[0_0_15px_rgba(var(--primary-rgb),0.4)]": isHovered && !isSelected && !isConflict,
-          "bg-primary/15 scale-[1.02]": isHoverHighlighted && !isHovered && !isSelected && !isConflict,
-          "bg-cell-highlight scale-[1.02]": isHighlighted && !isHovered && !isSelected && !isConflict,
+          "bg-gradient-to-br from-accent/40 via-accent/30 to-accent/20 ring-2 ring-accent/70 scale-[1.06] z-15 shadow-[0_0_15px_rgba(var(--accent-rgb),0.5)]": isSameNumber && !isSelected && !isHovered && !isConflict,
+          "bg-primary/15 scale-[1.02]": isHoverHighlighted && !isHovered && !isSelected && !isSameNumber && !isConflict,
+          "bg-cell-highlight scale-[1.02]": isHighlighted && !isHovered && !isSelected && !isSameNumber && !isConflict,
           "bg-gradient-to-br from-cell-error via-destructive/60 to-cell-error shadow-[0_0_20px_rgba(239,68,68,0.6)] animate-pulse-error z-25": isConflict,
-          "bg-gradient-to-br from-cell-diagonal/50 via-cell-diagonal/30 to-cell-diagonal/20 shadow-inner": isOnDiagonal && !cell.given && !isSelected && !isHovered && !isHoverHighlighted && !isHighlighted && !isConflict,
+          "bg-gradient-to-br from-cell-diagonal/50 via-cell-diagonal/30 to-cell-diagonal/20 shadow-inner": isOnDiagonal && !cell.given && !isSelected && !isHovered && !isSameNumber && !isHoverHighlighted && !isHighlighted && !isConflict,
           "border-r-[4px] border-r-primary/50": isRightBorder,
           "border-b-[4px] border-b-primary/50": isBottomBorder,
           "text-primary font-black drop-shadow-[0_0_8px_rgba(var(--primary-rgb),0.8)] animate-glow-text": !cell.given && cell.value !== 0,

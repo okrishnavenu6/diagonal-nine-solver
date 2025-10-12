@@ -12,12 +12,32 @@ interface SudokuGridProps {
 }
 
 export const SudokuGrid = ({ board, selectedCell, hoveredCell, onCellSelect, onCellHover }: SudokuGridProps) => {
+  const getSameNumberCells = (): Set<string> => {
+    if (!selectedCell || !board || board.length === 0) return new Set();
+
+    const [selRow, selCol] = selectedCell;
+    const sameNumber = new Set<string>();
+    const selectedValue = board[selRow]?.[selCol]?.value;
+
+    // Highlight all cells with the same value
+    if (selectedValue !== 0 && selectedValue !== undefined) {
+      for (let r = 0; r < 9; r++) {
+        for (let c = 0; c < 9; c++) {
+          if (board[r]?.[c]?.value === selectedValue) {
+            sameNumber.add(`${r},${c}`);
+          }
+        }
+      }
+    }
+
+    return sameNumber;
+  };
+
   const getHighlightedCells = (): Set<string> => {
     if (!selectedCell || !board || board.length === 0) return new Set();
 
     const [selRow, selCol] = selectedCell;
     const highlighted = new Set<string>();
-    const selectedValue = board[selRow]?.[selCol]?.value;
 
     // Highlight row and column
     for (let i = 0; i < 9; i++) {
@@ -43,17 +63,6 @@ export const SudokuGrid = ({ board, selectedCell, hoveredCell, onCellSelect, onC
     if (selRow + selCol === 8) {
       for (let i = 0; i < 9; i++) {
         highlighted.add(`${i},${8 - i}`);
-      }
-    }
-
-    // Highlight cells with the same value
-    if (selectedValue !== 0 && selectedValue !== undefined) {
-      for (let r = 0; r < 9; r++) {
-        for (let c = 0; c < 9; c++) {
-          if (board[r]?.[c]?.value === selectedValue) {
-            highlighted.add(`${r},${c}`);
-          }
-        }
       }
     }
 
@@ -104,6 +113,7 @@ export const SudokuGrid = ({ board, selectedCell, hoveredCell, onCellSelect, onC
     return conflicts;
   };
 
+  const sameNumberCells = getSameNumberCells();
   const highlightedCells = getHighlightedCells();
   const hoverHighlightedCells = getHoverHighlightedCells();
   const conflictCells = getConflictCells();
@@ -120,7 +130,7 @@ export const SudokuGrid = ({ board, selectedCell, hoveredCell, onCellSelect, onC
   }
 
   return (
-    <div className="group relative bg-gradient-to-br from-card/90 via-card to-card/80 rounded-3xl shadow-[0_8px_40px_rgba(0,0,0,0.4)] p-3 md:p-6 border-2 border-primary/40 backdrop-blur-2xl hover:border-primary/60 transition-all duration-500 hover:shadow-[0_0_60px_rgba(var(--primary-rgb),0.4)]">
+    <div className="group relative bg-gradient-to-br from-card/90 via-card to-card/80 rounded-3xl shadow-[0_8px_40px_rgba(0,0,0,0.4)] p-3 md:p-6 border-4 animate-rainbow-border backdrop-blur-2xl transition-all duration-500">
       <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 rounded-3xl pointer-events-none" />
       <div 
         className={cn(
@@ -135,8 +145,9 @@ export const SudokuGrid = ({ board, selectedCell, hoveredCell, onCellSelect, onC
             const key = `${rowIndex},${colIndex}`;
             const isSelected = selectedCell?.[0] === rowIndex && selectedCell?.[1] === colIndex;
             const isHovered = hoveredCell?.[0] === rowIndex && hoveredCell?.[1] === colIndex;
-            const isHoverHighlighted = hoverHighlightedCells.has(key) && !isHovered && !isSelected;
-            const isHighlighted = highlightedCells.has(key) && !isSelected && !isHovered;
+            const isSameNumber = sameNumberCells.has(key) && !isSelected;
+            const isHoverHighlighted = hoverHighlightedCells.has(key) && !isHovered && !isSelected && !isSameNumber;
+            const isHighlighted = highlightedCells.has(key) && !isSelected && !isHovered && !isSameNumber;
             const isConflict = conflictCells.has(key);
             const isOnDiagonal = isOnAnyDiagonal(rowIndex, colIndex);
 
@@ -148,6 +159,7 @@ export const SudokuGrid = ({ board, selectedCell, hoveredCell, onCellSelect, onC
                 col={colIndex}
                 isSelected={isSelected}
                 isHovered={isHovered}
+                isSameNumber={isSameNumber}
                 isHoverHighlighted={isHoverHighlighted}
                 isHighlighted={isHighlighted}
                 isConflict={isConflict}

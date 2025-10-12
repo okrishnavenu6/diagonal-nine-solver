@@ -12,14 +12,14 @@ export const NumberPad = ({ onNumberSelect, onClear, remainingNumbers }: NumberP
   return (
     <div className="group relative bg-gradient-to-br from-card via-card to-card/50 rounded-3xl shadow-[0_8px_40px_rgba(0,0,0,0.4)] p-5 md:p-7 space-y-5 border-2 border-primary/40 backdrop-blur-2xl hover:border-primary/60 transition-all duration-500 hover:shadow-[0_0_60px_rgba(var(--primary-rgb),0.4)]">
       <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 rounded-3xl pointer-events-none" />
-      <div className="relative flex items-center justify-center gap-3">
-        <div className="h-1 flex-1 bg-gradient-to-r from-transparent via-primary/50 to-primary rounded-full" />
-        <h2 className="text-2xl md:text-3xl font-black text-center bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent drop-shadow-lg">
+      <div className="relative flex items-center justify-center gap-3 xl:flex-col">
+        <div className="h-1 xl:h-auto xl:w-1 flex-1 bg-gradient-to-r xl:bg-gradient-to-b from-transparent via-primary/50 to-primary rounded-full" />
+        <h2 className="text-2xl md:text-3xl xl:text-xl font-black text-center bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent drop-shadow-lg xl:writing-mode-vertical xl:rotate-180 whitespace-nowrap">
           NUMBER PAD
         </h2>
-        <div className="h-1 flex-1 bg-gradient-to-l from-transparent via-primary/50 to-primary rounded-full" />
+        <div className="h-1 xl:h-auto xl:w-1 flex-1 bg-gradient-to-l xl:bg-gradient-to-t from-transparent via-primary/50 to-primary rounded-full" />
       </div>
-      <div className="relative grid grid-cols-5 gap-3">
+      <div className="relative grid grid-cols-5 xl:grid-cols-2 gap-3">
         {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => {
           const remaining = remainingNumbers[num];
           return (
@@ -52,7 +52,7 @@ export const NumberPad = ({ onNumberSelect, onClear, remainingNumbers }: NumberP
         })}
         <button
           onClick={onClear}
-          className="col-span-1 h-16 md:h-20 bg-gradient-to-br from-destructive via-destructive to-destructive/80 text-destructive-foreground rounded-2xl font-black text-base md:text-lg border-2 border-destructive/50 hover:from-destructive hover:to-red-700 focus:outline-none focus:ring-4 focus:ring-destructive/50 focus:ring-offset-2 focus:ring-offset-background transition-all duration-300 transform hover:scale-[1.15] active:scale-95 hover:-rotate-3 shadow-lg hover:shadow-2xl shadow-[0_0_20px_rgba(239,68,68,0.5)] hover:shadow-[0_0_30px_rgba(239,68,68,0.7)]"
+          className="col-span-1 xl:col-span-2 h-16 md:h-20 bg-gradient-to-br from-destructive via-destructive to-destructive/80 text-destructive-foreground rounded-2xl font-black text-base md:text-lg border-2 border-destructive/50 hover:from-destructive hover:to-red-700 focus:outline-none focus:ring-4 focus:ring-destructive/50 focus:ring-offset-2 focus:ring-offset-background transition-all duration-300 transform hover:scale-[1.15] active:scale-95 hover:-rotate-3 shadow-lg hover:shadow-2xl shadow-[0_0_20px_rgba(239,68,68,0.5)] hover:shadow-[0_0_30px_rgba(239,68,68,0.7)]"
         >
           <span className="drop-shadow-lg">CLEAR</span>
         </button>

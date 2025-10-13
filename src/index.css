@@ -61,46 +61,46 @@ All colors MUST be HSL.
   }
 
   .dark {
-    --background: 222 47% 8%;
-    --foreground: 220 25% 98%;
+    --background: 0 0% 0%;
+    --foreground: 0 0% 100%;
 
-    --card: 222 47% 11%;
-    --card-foreground: 220 25% 98%;
+    --card: 0 0% 5%;
+    --card-foreground: 0 0% 100%;
 
-    --popover: 222 47% 11%;
-    --popover-foreground: 220 25% 98%;
+    --popover: 0 0% 5%;
+    --popover-foreground: 0 0% 100%;
 
     --primary: 239 65% 65%;
-    --primary-foreground: 222 47% 11%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 222 47% 15%;
-    --secondary-foreground: 220 25% 98%;
+    --secondary: 0 0% 10%;
+    --secondary-foreground: 0 0% 100%;
 
-    --muted: 222 47% 15%;
-    --muted-foreground: 220 15% 65%;
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 70%;
 
-    --accent: 239 65% 20%;
-    --accent-foreground: 239 65% 90%;
+    --accent: 239 65% 25%;
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --success: 142 76% 36%;
+    --success: 142 76% 45%;
     --success-foreground: 0 0% 100%;
 
     --warning: 38 92% 50%;
     --warning-foreground: 0 0% 100%;
 
-    --border: 222 47% 20%;
-    --input: 222 47% 20%;
+    --border: 0 0% 20%;
+    --input: 0 0% 20%;
     --ring: 239 65% 65%;
 
-    --cell-bg: 222 47% 13%;
-    --cell-given: 222 47% 16%;
-    --cell-selected: 239 50% 25%;
-    --cell-highlight: 239 30% 18%;
-    --cell-error: 0 84% 20%;
-    --cell-diagonal: 239 30% 16%;
+    --cell-bg: 0 0% 8%;
+    --cell-given: 0 0% 12%;
+    --cell-selected: 239 50% 30%;
+    --cell-highlight: 239 30% 20%;
+    --cell-error: 0 84% 25%;
+    --cell-diagonal: 239 30% 18%;
   }
 }
 
@@ -117,6 +117,20 @@ All colors MUST be HSL.
 }
 
 @layer utilities {
+  .glass-card {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1);
+  }
+
+  .glass-card-light {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.05);
+  }
+
   .glow {
     box-shadow: 0 0 20px rgba(99, 102, 241, 0.5);
   }

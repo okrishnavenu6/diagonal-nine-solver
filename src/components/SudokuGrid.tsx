@@ -134,12 +134,12 @@ export const SudokuGrid = ({ board, selectedCell, hoveredCell, onCellSelect, onC
   }
 
   return (
-    <div className="group relative bg-gradient-to-br from-card/95 via-card to-card/90 rounded-3xl shadow-[0_12px_60px_rgba(0,0,0,0.5),0_0_80px_rgba(var(--primary-rgb),0.3)] p-3 md:p-6 border-[6px] animate-rainbow-border backdrop-blur-3xl transition-all duration-500 hover:shadow-[0_16px_80px_rgba(0,0,0,0.6),0_0_100px_rgba(var(--primary-rgb),0.4)]">
+    <div className="glass-card dark:glass-card rounded-3xl shadow-[0_0_60px_rgba(var(--primary-rgb),0.3)] p-4 md:p-6 lg:p-8 border-4 border-primary/40 hover:border-primary/60 transition-all duration-500 animate-rainbow-border hover:shadow-[0_0_80px_rgba(var(--primary-rgb),0.5)] relative overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-accent/10 rounded-3xl pointer-events-none animate-pulse" />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(var(--primary-rgb),0.1),transparent_70%)] rounded-3xl pointer-events-none" />
       <div 
         className={cn(
-          "relative grid grid-cols-9 gap-0 bg-gradient-to-br from-primary/25 via-background/60 to-accent/25 p-1",
+          "relative grid grid-cols-9 gap-0 bg-gradient-to-br from-primary/15 via-background/60 to-accent/15 p-1",
           "aspect-square w-full max-w-[600px] mx-auto rounded-2xl overflow-hidden",
           "shadow-[inset_0_0_50px_rgba(var(--primary-rgb),0.25),0_0_50px_rgba(var(--primary-rgb),0.35)]",
           "border-2 border-primary/40"

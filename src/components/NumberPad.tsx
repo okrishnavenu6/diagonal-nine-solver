@@ -1,61 +1,141 @@
-import { Button } from "@/components/ui/button";
-import { Eraser } from "lucide-react";
+import { Eraser, Undo, Redo, Lightbulb, CheckCircle, Pencil } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 interface NumberPadProps {
   onNumberSelect: (num: number) => void;
   onClear: () => void;
   remainingNumbers: Record<number, number>;
+  onUndo: () => void;
+  onRedo: () => void;
+  onHint: () => void;
+  onValidate: () => void;
+  onTogglePencil: () => void;
+  canUndo: boolean;
+  canRedo: boolean;
+  isPencilMode: boolean;
 }
 
-export const NumberPad = ({ onNumberSelect, onClear, remainingNumbers }: NumberPadProps) => {
+export const NumberPad = ({ 
+  onNumberSelect, 
+  onClear, 
+  remainingNumbers,
+  onUndo,
+  onRedo,
+  onHint,
+  onValidate,
+  onTogglePencil,
+  canUndo,
+  canRedo,
+  isPencilMode,
+}: NumberPadProps) => {
   return (
-    <div className="group relative bg-gradient-to-br from-card via-card to-card/50 rounded-3xl shadow-[0_8px_40px_rgba(0,0,0,0.4)] p-5 md:p-7 space-y-5 border-2 border-primary/40 backdrop-blur-2xl hover:border-primary/60 transition-all duration-500 hover:shadow-[0_0_60px_rgba(var(--primary-rgb),0.4)]">
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 rounded-3xl pointer-events-none" />
-      <div className="relative flex items-center justify-center gap-3 xl:flex-col">
-        <div className="h-1 xl:h-auto xl:w-1 flex-1 bg-gradient-to-r xl:bg-gradient-to-b from-transparent via-primary/50 to-primary rounded-full" />
-        <h2 className="text-2xl md:text-3xl xl:text-xl font-black text-center bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent drop-shadow-lg xl:writing-mode-vertical xl:rotate-180 whitespace-nowrap">
-          NUMBER PAD
-        </h2>
-        <div className="h-1 xl:h-auto xl:w-1 flex-1 bg-gradient-to-l xl:bg-gradient-to-t from-transparent via-primary/50 to-primary rounded-full" />
-      </div>
-      <div className="relative grid grid-cols-5 xl:grid-cols-2 gap-3">
-        {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => {
-          const remaining = remainingNumbers[num];
+    <div className="w-full glass-card dark:glass-card rounded-2xl shadow-2xl p-4 md:p-6 space-y-4 border border-primary/30 hover:border-primary/50 transition-all duration-300">
+      <h3 className="font-black text-center text-foreground text-base md:text-lg uppercase tracking-widest">
+        NUMBER PAD
+      </h3>
+      
+      <div className="grid grid-cols-3 gap-2 md:gap-3">
+        {Array.from({ length: 9 }, (_, i) => i + 1).map((num) => {
+          const remaining = remainingNumbers[num] || 0;
+          const isDisabled = remaining === 0;
+          
           return (
             <button
               key={num}
               onClick={() => onNumberSelect(num)}
-              disabled={remaining === 0}
+              disabled={isDisabled}
               className={cn(
-                "relative h-16 md:h-20 rounded-2xl font-black text-2xl md:text-3xl",
-                "transition-all duration-300",
-                "disabled:cursor-not-allowed",
-                "focus:outline-none focus:ring-4 focus:ring-primary/50 focus:ring-offset-2 focus:ring-offset-background",
-                "transform hover:scale-[1.15] active:scale-95 hover:rotate-3 active:rotate-0",
-                "shadow-lg hover:shadow-2xl",
-                "border-2",
-                {
-                  "bg-gradient-to-br from-primary via-primary to-primary/80 text-primary-foreground border-primary/50 hover:from-primary hover:to-accent shadow-[0_0_20px_rgba(99,102,241,0.5)] hover:shadow-[0_0_30px_rgba(99,102,241,0.7)]": remaining > 0,
-                  "bg-gradient-to-br from-muted to-muted/50 text-muted-foreground/30 opacity-30 border-border/20": remaining === 0,
-                }
+                "relative aspect-square rounded-xl font-black text-xl md:text-2xl transition-all duration-300 border-2",
+                "hover:scale-110 active:scale-95 group/btn overflow-hidden shadow-lg",
+                isDisabled
+                  ? "bg-muted/20 border-muted/30 text-muted-foreground/30 cursor-not-allowed"
+                  : "bg-gradient-to-br from-primary/30 via-primary/20 to-primary/10 border-primary/50 hover:border-primary text-primary-foreground hover:shadow-[0_0_30px_rgba(var(--primary-rgb),0.6)] hover:from-primary/50 hover:via-primary/40 hover:to-primary/30"
               )}
             >
-              <span className="relative z-10 drop-shadow-lg">{num}</span>
-              {remaining < 9 && remaining > 0 && (
-                <span className="absolute -top-2 -right-2 text-xs bg-gradient-to-br from-accent to-accent/80 text-accent-foreground rounded-full w-7 h-7 flex items-center justify-center font-black shadow-lg border-2 border-background">
+              <span className="relative z-10">{num}</span>
+              {!isDisabled && remaining > 0 && remaining < 9 && (
+                <span className="absolute top-1 right-1 w-5 h-5 bg-accent rounded-full text-[10px] font-black flex items-center justify-center shadow-lg animate-pulse-subtle">
                   {remaining}
                 </span>
+              )}
+              {!isDisabled && (
+                <div className="absolute inset-0 bg-gradient-to-r from-primary/0 via-accent/30 to-primary/0 opacity-0 group-hover/btn:opacity-100 transition-opacity blur-sm" />
               )}
             </button>
           );
         })}
+        
         <button
           onClick={onClear}
-          className="col-span-1 xl:col-span-2 h-16 md:h-20 bg-gradient-to-br from-destructive via-destructive to-destructive/80 text-destructive-foreground rounded-2xl font-black text-base md:text-lg border-2 border-destructive/50 hover:from-destructive hover:to-red-700 focus:outline-none focus:ring-4 focus:ring-destructive/50 focus:ring-offset-2 focus:ring-offset-background transition-all duration-300 transform hover:scale-[1.15] active:scale-95 hover:-rotate-3 shadow-lg hover:shadow-2xl shadow-[0_0_20px_rgba(239,68,68,0.5)] hover:shadow-[0_0_30px_rgba(239,68,68,0.7)]"
+          className="col-span-3 aspect-auto h-14 md:h-16 bg-gradient-to-br from-destructive/30 via-destructive/20 to-destructive/10 hover:from-destructive/50 hover:via-destructive/40 hover:to-destructive/30 rounded-xl font-black text-destructive-foreground text-sm md:text-base uppercase tracking-wider transition-all duration-300 hover:scale-105 active:scale-95 border-2 border-destructive/50 hover:border-destructive hover:shadow-[0_0_30px_rgba(239,68,68,0.6)] flex items-center justify-center gap-2 shadow-lg group/btn overflow-hidden"
         >
-          <span className="drop-shadow-lg">CLEAR</span>
+          <Eraser className="w-4 h-4 md:w-5 md:h-5" />
+          CLEAR
+          <div className="absolute inset-0 bg-gradient-to-r from-destructive/0 via-destructive/40 to-destructive/0 opacity-0 group-hover/btn:opacity-100 transition-opacity blur-sm" />
         </button>
+      </div>
+
+      {/* Control Buttons */}
+      <div className="space-y-2 pt-2 border-t border-primary/20">
+        <div className="grid grid-cols-2 gap-2">
+          <Button
+            onClick={onUndo}
+            disabled={!canUndo}
+            size="sm"
+            variant="outline"
+            className="font-bold border-primary/40 hover:bg-primary/20 hover:border-primary disabled:opacity-30 h-10"
+          >
+            <Undo className="w-4 h-4 mr-1" />
+            Undo
+          </Button>
+          <Button
+            onClick={onRedo}
+            disabled={!canRedo}
+            size="sm"
+            variant="outline"
+            className="font-bold border-primary/40 hover:bg-primary/20 hover:border-primary disabled:opacity-30 h-10"
+          >
+            <Redo className="w-4 h-4 mr-1" />
+            Redo
+          </Button>
+        </div>
+        
+        <div className="grid grid-cols-2 gap-2">
+          <Button
+            onClick={onHint}
+            size="sm"
+            variant="outline"
+            className="font-bold border-warning/40 hover:bg-warning/20 hover:border-warning text-warning h-10"
+          >
+            <Lightbulb className="w-4 h-4 mr-1" />
+            Hint
+          </Button>
+          <Button
+            onClick={onValidate}
+            size="sm"
+            variant="outline"
+            className="font-bold border-success/40 hover:bg-success/20 hover:border-success text-success h-10"
+          >
+            <CheckCircle className="w-4 h-4 mr-1" />
+            Check
+          </Button>
+        </div>
+
+        <Button
+          onClick={onTogglePencil}
+          size="sm"
+          variant={isPencilMode ? "default" : "outline"}
+          className={cn(
+            "w-full font-bold h-10",
+            isPencilMode
+              ? "bg-accent text-accent-foreground hover:bg-accent/90 shadow-lg"
+              : "border-accent/40 hover:bg-accent/20 hover:border-accent text-accent"
+          )}
+        >
+          <Pencil className="w-4 h-4 mr-2" />
+          {isPencilMode ? "PENCIL ON" : "PENCIL OFF"}
+        </Button>
       </div>
     </div>
   );

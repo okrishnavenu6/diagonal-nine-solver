@@ -1,65 +1,70 @@
+import { Zap, Flame, Skull, Crown, RefreshCw } from "lucide-react";
 import { Difficulty } from "@/utils/sudokuGenerator";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 interface DifficultySelectorProps {
   currentDifficulty: Difficulty;
   onSelect: (difficulty: Difficulty) => void;
+  onNewGame: () => void;
 }
 
-const difficulties: { value: Difficulty; label: string; icon: string }[] = [
-  { value: "easy", label: "Easy", icon: "⚡" },
-  { value: "medium", label: "Medium", icon: "🔥" },
-  { value: "hard", label: "Hard", icon: "💀" },
-  { value: "expert", label: "Expert", icon: "👑" },
+const difficulties = [
+  { value: "easy" as Difficulty, label: "Easy", icon: Zap },
+  { value: "medium" as Difficulty, label: "Medium", icon: Flame },
+  { value: "hard" as Difficulty, label: "Hard", icon: Skull },
+  { value: "expert" as Difficulty, label: "Expert", icon: Crown },
 ];
 
-export const DifficultySelector = ({ currentDifficulty, onSelect }: DifficultySelectorProps) => {
+export const DifficultySelector = ({ currentDifficulty, onSelect, onNewGame }: DifficultySelectorProps) => {
   return (
-    <div className="group relative bg-gradient-to-br from-card via-card to-card/50 rounded-3xl shadow-[0_8px_40px_rgba(0,0,0,0.4)] p-5 md:p-7 space-y-5 border-2 border-primary/40 backdrop-blur-2xl hover:border-primary/60 transition-all duration-500 hover:shadow-[0_0_60px_rgba(var(--primary-rgb),0.4)]">
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 rounded-3xl pointer-events-none" />
-      
-      <div className="relative flex items-center justify-center gap-3">
-        <div className="h-1 flex-1 bg-gradient-to-r from-transparent via-accent/50 to-accent rounded-full" />
-        <h2 className="text-2xl md:text-3xl font-black text-center bg-gradient-to-r from-accent via-primary to-accent bg-clip-text text-transparent drop-shadow-lg">
-          DIFFICULTY
-        </h2>
-        <div className="h-1 flex-1 bg-gradient-to-l from-transparent via-accent/50 to-accent rounded-full" />
+    <div className="glass-card dark:glass-card rounded-2xl shadow-2xl p-4 md:p-6 space-y-4 border border-primary/30 hover:border-primary/50 transition-all duration-300">
+      <div className="flex items-center gap-3 mb-4">
+        <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg">
+          <Flame className="w-6 h-6 text-primary-foreground" />
+        </div>
+        <h3 className="font-black text-foreground text-lg uppercase tracking-wider">Difficulty</h3>
       </div>
       
-      <div className="relative space-y-3">
-        {difficulties.map((diff) => (
-          <button
-            key={diff.value}
-            onClick={() => onSelect(diff.value)}
-            className={cn(
-              "w-full py-4 px-5 rounded-2xl font-bold text-left transition-all duration-300 transform hover:scale-[1.05]",
-              "flex items-center justify-between border-2 shadow-lg relative overflow-hidden group/btn",
-              {
-                "bg-gradient-to-r from-primary via-accent to-primary text-primary-foreground shadow-[0_0_25px_rgba(99,102,241,0.6)] hover:shadow-[0_0_35px_rgba(99,102,241,0.8)] border-primary/50 scale-[1.03]": currentDifficulty === diff.value,
-                "bg-gradient-to-br from-secondary to-secondary/80 text-secondary-foreground hover:from-secondary/90 hover:to-secondary border-secondary/50": currentDifficulty !== diff.value,
-              }
-            )}
-          >
-            <div className={cn("absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-200%] group-hover/btn:translate-x-[200%] transition-transform duration-1000", {
-              "opacity-100": currentDifficulty === diff.value,
-              "opacity-0": currentDifficulty !== diff.value,
-            })} />
-            <span className="flex items-center gap-3 relative z-10">
-              <span className={cn("text-2xl transition-transform duration-300 group-hover/btn:scale-125", {
-                "animate-pulse": currentDifficulty === diff.value,
-              })}>
-                {diff.icon}
-              </span>
-              <span className="text-lg drop-shadow-lg">{diff.label}</span>
-            </span>
-            {currentDifficulty === diff.value && (
-              <span className="relative z-10 text-xs bg-accent text-accent-foreground rounded-full px-3 py-1.5 font-black shadow-lg animate-bounce-subtle">
-                ACTIVE
-              </span>
-            )}
-          </button>
-        ))}
+      <div className="grid grid-cols-2 gap-3">
+        {difficulties.map(({ value, label, icon: Icon }) => {
+          const isActive = currentDifficulty === value;
+          return (
+            <button
+              key={value}
+              onClick={() => onSelect(value)}
+              className={cn(
+                "relative p-4 rounded-xl font-bold text-sm transition-all duration-300 border-2",
+                "hover:scale-105 active:scale-95 group/btn overflow-hidden",
+                isActive
+                  ? "bg-gradient-to-br from-primary/40 via-primary/30 to-primary/20 border-primary shadow-[0_0_30px_rgba(var(--primary-rgb),0.6)] text-primary-foreground scale-105"
+                  : "bg-card/30 border-primary/20 hover:border-primary/40 hover:bg-primary/10 text-foreground hover:shadow-[0_0_20px_rgba(var(--primary-rgb),0.3)]"
+              )}
+            >
+              <div className="relative z-10 flex flex-col items-center gap-2">
+                <Icon className={cn("w-6 h-6", isActive ? "animate-bounce-subtle" : "")} />
+                <span className="uppercase tracking-wider">{label}</span>
+                {isActive && (
+                  <span className="absolute -top-1 -right-1 px-2 py-0.5 bg-accent rounded-full text-[10px] font-black animate-pulse-subtle">
+                    ACTIVE
+                  </span>
+                )}
+              </div>
+              {isActive && (
+                <div className="absolute inset-0 bg-gradient-to-r from-primary/20 via-accent/20 to-primary/20 blur-xl animate-pulse" />
+              )}
+            </button>
+          );
+        })}
       </div>
+
+      <Button
+        onClick={onNewGame}
+        className="w-full bg-gradient-to-r from-primary to-accent hover:opacity-90 text-primary-foreground font-black py-6 rounded-xl shadow-lg hover:shadow-2xl transition-all group"
+      >
+        <RefreshCw className="w-5 h-5 mr-2 group-hover:rotate-180 transition-transform duration-500" />
+        NEW GAME
+      </Button>
     </div>
   );
 };

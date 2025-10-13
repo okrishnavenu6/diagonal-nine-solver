@@ -1,9 +1,9 @@
 import { useState, useEffect, useCallback } from "react";
 import { SudokuGrid } from "@/components/SudokuGrid";
-import { GameControls } from "@/components/GameControls";
 import { NumberPad } from "@/components/NumberPad";
 import { GameStatus } from "@/components/GameStatus";
 import { DifficultySelector } from "@/components/DifficultySelector";
+import { CompletionDialog } from "@/components/CompletionDialog";
 import { Button } from "@/components/ui/button";
 import { Moon, Sun, Sparkles } from "lucide-react";
 import { useTheme } from "next-themes";
@@ -44,6 +44,8 @@ const Index = () => {
   const [hoveredCell, setHoveredCell] = useState<[number, number] | null>(null);
   const [isGameWon, setIsGameWon] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
+  const [showCompletionDialog, setShowCompletionDialog] = useState(false);
+  const [isTimerRunning, setIsTimerRunning] = useState(true);
   const { toast } = useToast();
   const { theme, setTheme } = useTheme();
 
@@ -60,6 +62,8 @@ const Index = () => {
     setMessageType("info");
     setIsGameWon(false);
     setShowConfetti(false);
+    setShowCompletionDialog(false);
+    setIsTimerRunning(true);
   }, []);
 
   useEffect(() => {
@@ -67,12 +71,14 @@ const Index = () => {
   }, [difficulty, initializeGame]);
 
   useEffect(() => {
+    if (!isTimerRunning) return;
+    
     const timer = setInterval(() => {
       setTime((prev) => prev + 1);
     }, 1000);
 
     return () => clearInterval(timer);
-  }, []);
+  }, [isTimerRunning]);
 
   const handleCellSelect = (row: number, col: number) => {
     if (board[row][col].given) {
@@ -205,10 +211,8 @@ const Index = () => {
         setMessageType("success");
         setIsGameWon(true);
         setShowConfetti(true);
-        toast({
-          title: "🎉 VICTORY!",
-          description: `You completed the puzzle in ${Math.floor(time / 60)}:${(time % 60).toString().padStart(2, "0")} with a score of ${score + 10}!`,
-        });
+        setIsTimerRunning(false);
+        setShowCompletionDialog(true);
         setTimeout(() => setShowConfetti(false), 5000);
       }
     }
@@ -310,10 +314,11 @@ const Index = () => {
     if (isPuzzleComplete(board)) {
       setMessage("✅ Perfect! All cells are correctly filled!");
       setMessageType("success");
-      toast({
-        title: "Validation Successful",
-        description: "Your solution is correct!",
-      });
+      setIsGameWon(true);
+      setShowConfetti(true);
+      setIsTimerRunning(false);
+      setShowCompletionDialog(true);
+      setTimeout(() => setShowConfetti(false), 5000);
     } else {
       let emptyCount = 0;
       let errorCount = 0;
@@ -331,9 +336,18 @@ const Index = () => {
       if (errorCount > 0) {
         setMessage(`❌ ${errorCount} incorrect cell(s) found!`);
         setMessageType("error");
+        toast({
+          title: "Errors Found",
+          description: `${errorCount} incorrect cell(s) detected.`,
+          variant: "destructive",
+        });
       } else {
         setMessage(`${emptyCount} empty cell(s) remaining.`);
         setMessageType("info");
+        toast({
+          title: "Keep Going",
+          description: `${emptyCount} cells left to fill.`,
+        });
       }
     }
   };
@@ -379,7 +393,7 @@ const Index = () => {
   }, [selectedCell, isPencilMode, board, score]);
 
   return (
-    <div className="min-h-screen p-4 md:p-8 relative overflow-hidden">
+    <div className="min-h-screen p-2 sm:p-4 md:p-6 lg:p-8 relative overflow-hidden">
       {/* Confetti animation on win */}
       {showConfetti && (
         <div className="fixed inset-0 pointer-events-none z-50 overflow-hidden">
@@ -406,52 +420,49 @@ const Index = () => {
         </div>
       )}
 
+      {/* Completion Dialog */}
+      <CompletionDialog
+        isOpen={showCompletionDialog}
+        onClose={() => setShowCompletionDialog(false)}
+        time={time}
+        score={score}
+        difficulty={difficulty}
+      />
+
       {/* Enhanced futuristic background effects */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/20 via-background to-background pointer-events-none" />
       <div className="absolute inset-0 bg-grid-pattern opacity-10 pointer-events-none" />
-      <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-primary/20 rounded-full blur-[120px] pointer-events-none animate-float" />
-      <div className="absolute bottom-0 right-1/4 w-[600px] h-[600px] bg-accent/20 rounded-full blur-[120px] pointer-events-none animate-float-delayed" />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/5 rounded-full blur-[150px] pointer-events-none animate-pulse-slow" />
+      <div className="absolute top-0 left-1/4 w-[400px] md:w-[600px] h-[400px] md:h-[600px] bg-primary/20 rounded-full blur-[80px] md:blur-[120px] pointer-events-none animate-float" />
+      <div className="absolute bottom-0 right-1/4 w-[400px] md:w-[600px] h-[400px] md:h-[600px] bg-accent/20 rounded-full blur-[80px] md:blur-[120px] pointer-events-none animate-float-delayed" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] md:w-[800px] h-[600px] md:h-[800px] bg-primary/5 rounded-full blur-[100px] md:blur-[150px] pointer-events-none animate-pulse-slow" />
       
       {/* Dark mode toggle */}
-      <div className="fixed top-4 right-4 z-50">
+      <div className="fixed top-2 right-2 sm:top-4 sm:right-4 z-50">
         <Button
           variant="outline"
           size="icon"
           onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-          className="rounded-full w-12 h-12 bg-card/90 backdrop-blur-xl border-primary/30 hover:border-primary/60 hover:shadow-[0_0_20px_rgba(var(--primary-rgb),0.4)] transition-all duration-300"
+          className="rounded-full w-10 h-10 sm:w-12 sm:h-12 glass-card dark:glass-card border-primary/30 hover:border-primary/60 hover:shadow-[0_0_20px_rgba(var(--primary-rgb),0.4)] transition-all duration-300"
         >
-          <Sun className="h-6 w-6 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-          <Moon className="absolute h-6 w-6 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+          <Sun className="h-5 w-5 sm:h-6 sm:w-6 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+          <Moon className="absolute h-5 w-5 sm:h-6 sm:w-6 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
           <span className="sr-only">Toggle theme</span>
         </Button>
       </div>
       
-      <div className="max-w-[1600px] mx-auto space-y-8 relative z-10">
-        <header className="text-center space-y-4 animate-fade-in">
+      <div className="max-w-[1800px] mx-auto space-y-4 md:space-y-6 lg:space-y-8 relative z-10">
+        <header className="text-center space-y-2 md:space-y-4 animate-fade-in">
           <div className="relative inline-block">
-            <h1 className={`text-5xl md:text-7xl font-black bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent drop-shadow-2xl ${isGameWon ? 'animate-victory' : 'animate-glow'}`}>
+            <h1 className={`text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-black bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent drop-shadow-2xl ${isGameWon ? 'animate-victory' : 'animate-glow'}`}>
               SUDOKU X
             </h1>
             <div className="absolute inset-0 bg-gradient-to-r from-primary/20 via-accent/20 to-primary/20 blur-3xl -z-10 animate-pulse" />
           </div>
-          <p className="text-muted-foreground text-base md:text-lg font-semibold tracking-wide">
-            ⚡ Diagonal Constraint Mode • 9×9 Grid Challenge
-          </p>
         </header>
 
-        <div className="grid xl:grid-cols-[auto,1fr,auto] gap-6 items-start justify-center">
-          {/* Left sidebar - Number pad */}
-          <div className="xl:block hidden">
-            <NumberPad
-              onNumberSelect={handleNumberInput}
-              onClear={handleClear}
-              remainingNumbers={getRemainingNumbers()}
-            />
-          </div>
-
-          {/* Center - Grid */}
-          <div className="space-y-4">
+        <div className="flex flex-col lg:flex-row gap-4 md:gap-6 items-start justify-center">
+          {/* Center - Grid and Number Pad */}
+          <div className="w-full lg:flex-1 space-y-4 order-2 lg:order-1">
             <SudokuGrid
               board={board}
               selectedCell={selectedCell}
@@ -460,18 +471,41 @@ const Index = () => {
               onCellHover={setHoveredCell}
             />
 
-            {/* Number pad for mobile/tablet */}
-            <div className="xl:hidden">
-              <NumberPad
-                onNumberSelect={handleNumberInput}
-                onClear={handleClear}
-                remainingNumbers={getRemainingNumbers()}
-              />
+            {/* Game Rules - Below grid on mobile */}
+            <div className="glass-card dark:glass-card rounded-2xl shadow-2xl p-4 md:p-6 space-y-3 text-xs md:text-sm border border-primary/30 hover:border-primary/50 transition-all duration-300">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg">
+                  <span className="text-lg md:text-2xl">🎯</span>
+                </div>
+                <h3 className="font-black text-foreground text-sm md:text-lg uppercase tracking-wider">Game Rules</h3>
+              </div>
+              <ul className="space-y-2 md:space-y-2.5 text-muted-foreground">
+                <li className="flex items-start gap-2 md:gap-3 group/item hover:text-foreground transition-colors">
+                  <span className="text-primary mt-0.5 md:mt-1 text-base md:text-lg group-hover/item:scale-125 transition-transform">▸</span>
+                  <span className="flex-1">Fill each <strong className="text-foreground">row, column, and 3×3 box</strong> with digits 1-9</span>
+                </li>
+                <li className="flex items-start gap-2 md:gap-3 group/item hover:text-foreground transition-colors">
+                  <span className="text-accent mt-0.5 md:mt-1 text-base md:text-lg group-hover/item:scale-125 transition-transform">▸</span>
+                  <span className="flex-1"><strong className="text-foreground">Both main diagonals</strong> must contain unique 1-9</span>
+                </li>
+                <li className="flex items-start gap-2 md:gap-3 group/item hover:text-foreground transition-colors">
+                  <span className="text-primary mt-0.5 md:mt-1 text-base md:text-lg group-hover/item:scale-125 transition-transform">▸</span>
+                  <span className="flex-1">Toggle <strong className="text-foreground">Pencil mode</strong> to add candidate numbers</span>
+                </li>
+                <li className="flex items-start gap-2 md:gap-3 group/item hover:text-foreground transition-colors">
+                  <span className="text-accent mt-0.5 md:mt-1 text-base md:text-lg group-hover/item:scale-125 transition-transform">▸</span>
+                  <span className="flex-1">Use <strong className="text-foreground">keyboard 1-9</strong> or tap number pad</span>
+                </li>
+                <li className="flex items-start gap-2 md:gap-3 group/item hover:text-foreground transition-colors">
+                  <span className="text-primary mt-0.5 md:mt-1 text-base md:text-lg group-hover/item:scale-125 transition-transform">▸</span>
+                  <span className="flex-1">Press <strong className="text-foreground">Del/Backspace</strong> to clear cells</span>
+                </li>
+              </ul>
             </div>
           </div>
 
           {/* Right sidebar - Controls */}
-          <div className="space-y-4 xl:w-80 w-full">
+          <div className="w-full lg:w-80 xl:w-96 space-y-4 order-1 lg:order-2">
             <GameStatus
               time={time}
               score={score}
@@ -485,10 +519,13 @@ const Index = () => {
                 setDifficulty(diff);
                 initializeGame(diff);
               }}
+              onNewGame={() => initializeGame(difficulty)}
             />
 
-            <GameControls
-              onNewGame={() => initializeGame(difficulty)}
+            <NumberPad
+              onNumberSelect={handleNumberInput}
+              onClear={handleClear}
+              remainingNumbers={getRemainingNumbers()}
               onUndo={handleUndo}
               onRedo={handleRedo}
               onHint={handleHint}
@@ -498,37 +535,6 @@ const Index = () => {
               canRedo={currentMoveIndex < moveHistory.length - 1}
               isPencilMode={isPencilMode}
             />
-
-            <div className="group bg-gradient-to-br from-card via-card to-card/50 rounded-2xl shadow-2xl p-6 space-y-3 text-sm border border-primary/30 backdrop-blur-xl hover:border-primary/50 transition-all duration-300 hover:shadow-[0_0_40px_rgba(var(--primary-rgb),0.3)]">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg">
-                  <span className="text-2xl">🎯</span>
-                </div>
-                <h3 className="font-black text-foreground text-lg uppercase tracking-wider">Game Rules</h3>
-              </div>
-              <ul className="space-y-2.5 text-muted-foreground">
-                <li className="flex items-start gap-3 group/item hover:text-foreground transition-colors">
-                  <span className="text-primary mt-1 text-lg group-hover/item:scale-125 transition-transform">▸</span>
-                  <span className="flex-1">Fill each <strong className="text-foreground">row, column, and 3×3 box</strong> with digits 1-9</span>
-                </li>
-                <li className="flex items-start gap-3 group/item hover:text-foreground transition-colors">
-                  <span className="text-accent mt-1 text-lg group-hover/item:scale-125 transition-transform">▸</span>
-                  <span className="flex-1"><strong className="text-foreground">Both main diagonals</strong> must contain unique 1-9</span>
-                </li>
-                <li className="flex items-start gap-3 group/item hover:text-foreground transition-colors">
-                  <span className="text-primary mt-1 text-lg group-hover/item:scale-125 transition-transform">▸</span>
-                  <span className="flex-1">Toggle <strong className="text-foreground">Pencil mode</strong> to add candidate numbers</span>
-                </li>
-                <li className="flex items-start gap-3 group/item hover:text-foreground transition-colors">
-                  <span className="text-accent mt-1 text-lg group-hover/item:scale-125 transition-transform">▸</span>
-                  <span className="flex-1">Use <strong className="text-foreground">keyboard 1-9</strong> or tap number pad</span>
-                </li>
-                <li className="flex items-start gap-3 group/item hover:text-foreground transition-colors">
-                  <span className="text-primary mt-1 text-lg group-hover/item:scale-125 transition-transform">▸</span>
-                  <span className="flex-1">Press <strong className="text-foreground">Del/Backspace</strong> to clear cells</span>
-                </li>
-              </ul>
-            </div>
           </div>
         </div>
       </div>

@@ -134,7 +134,7 @@ export const SudokuGrid = ({ board, selectedCell, hoveredCell, onCellSelect, onC
   }
 
   return (
-    <div className="glass-card dark:glass-card rounded-3xl shadow-[0_0_60px_rgba(var(--primary-rgb),0.3)] p-4 md:p-6 lg:p-8 border-4 border-primary/40 hover:border-primary/60 transition-all duration-500 animate-rainbow-border hover:shadow-[0_0_80px_rgba(var(--primary-rgb),0.5)] relative overflow-hidden">
+    <div className="liquid-glass rounded-3xl shadow-[0_0_60px_rgba(var(--primary-rgb),0.3)] p-4 md:p-6 lg:p-8 border-4 border-primary/40 hover:border-primary/60 transition-all duration-500 animate-rainbow-border hover:shadow-[0_0_80px_rgba(var(--primary-rgb),0.5)] relative overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-accent/10 rounded-3xl pointer-events-none animate-pulse" />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(var(--primary-rgb),0.1),transparent_70%)] rounded-3xl pointer-events-none" />
       <div 

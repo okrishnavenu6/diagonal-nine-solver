@@ -1,4 +1,4 @@
-import { Clock, Trophy, AlertCircle, CheckCircle, Info } from "lucide-react";
+import { Clock, Trophy, AlertCircle, CheckCircle, Info, Heart } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface GameStatusProps {
@@ -6,9 +6,11 @@ interface GameStatusProps {
   score: number;
   message: string;
   messageType: "info" | "success" | "error" | "warning";
+  lives: number;
+  maxLives: number;
 }
 
-export const GameStatus = ({ time, score, message, messageType }: GameStatusProps) => {
+export const GameStatus = ({ time, score, message, messageType, lives, maxLives }: GameStatusProps) => {
   const formatTime = (seconds: number): string => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -42,9 +44,9 @@ export const GameStatus = ({ time, score, message, messageType }: GameStatusProp
   };
 
   return (
-    <div className="glass-card dark:glass-card rounded-2xl shadow-2xl p-4 md:p-6 space-y-4 border border-primary/30 hover:border-primary/50 transition-all duration-300">
+    <div className="liquid-glass rounded-2xl shadow-2xl p-4 md:p-6 space-y-4 border border-primary/30 hover:border-primary/50 transition-all duration-300">
       <div className="flex justify-between items-center gap-4">
-        <div className="flex items-center gap-4 flex-1">
+        <div className="flex items-center gap-3 flex-1">
           <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shadow-lg">
             <Clock className="w-6 h-6 md:w-7 md:h-7 text-primary-foreground animate-pulse" />
           </div>
@@ -53,7 +55,7 @@ export const GameStatus = ({ time, score, message, messageType }: GameStatusProp
             <p className="text-2xl md:text-3xl font-black text-foreground drop-shadow-lg">{formatTime(time)}</p>
           </div>
         </div>
-        <div className="flex items-center gap-4 flex-1 justify-end">
+        <div className="flex items-center gap-3 flex-1 justify-end">
           <div>
             <p className="text-xs text-muted-foreground font-black uppercase tracking-widest text-right">Score</p>
             <p className="text-2xl md:text-3xl font-black text-transparent bg-gradient-to-r from-accent to-primary bg-clip-text drop-shadow-lg text-right">{score}</p>
@@ -61,6 +63,24 @@ export const GameStatus = ({ time, score, message, messageType }: GameStatusProp
           <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-gradient-to-br from-accent to-accent/60 flex items-center justify-center shadow-lg">
             <Trophy className="w-6 h-6 md:w-7 md:h-7 text-accent-foreground animate-bounce-subtle" />
           </div>
+        </div>
+      </div>
+
+      {/* Lives Display */}
+      <div className="flex items-center justify-center gap-2 p-3 rounded-xl bg-gradient-to-br from-destructive/20 to-destructive/10 border border-destructive/30">
+        <p className="text-xs text-muted-foreground font-black uppercase tracking-widest">Lives</p>
+        <div className="flex gap-1">
+          {Array.from({ length: maxLives }).map((_, i) => (
+            <Heart
+              key={i}
+              className={cn(
+                "w-5 h-5 transition-all duration-300",
+                i < lives 
+                  ? "text-destructive fill-destructive animate-pulse-subtle" 
+                  : "text-muted-foreground/30"
+              )}
+            />
+          ))}
         </div>
       </div>
 

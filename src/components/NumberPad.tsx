@@ -30,7 +30,7 @@ export const NumberPad = ({
   isPencilMode,
 }: NumberPadProps) => {
   return (
-    <div className="w-full glass-card dark:glass-card rounded-2xl shadow-2xl p-4 md:p-6 space-y-4 border border-primary/30 hover:border-primary/50 transition-all duration-300">
+    <div className="w-full liquid-glass rounded-2xl shadow-2xl p-4 md:p-6 space-y-4 border border-primary/30 hover:border-primary/50 transition-all duration-300">
       <h3 className="font-black text-center text-foreground text-base md:text-lg uppercase tracking-widest">
         NUMBER PAD
       </h3>

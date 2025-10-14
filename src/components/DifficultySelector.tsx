@@ -18,7 +18,7 @@ const difficulties = [
 
 export const DifficultySelector = ({ currentDifficulty, onSelect, onNewGame }: DifficultySelectorProps) => {
   return (
-    <div className="glass-card dark:glass-card rounded-2xl shadow-2xl p-4 md:p-6 space-y-4 border border-primary/30 hover:border-primary/50 transition-all duration-300">
+    <div className="liquid-glass rounded-2xl shadow-2xl p-4 md:p-6 space-y-4 border border-primary/30 hover:border-primary/50 transition-all duration-300">
       <div className="flex items-center gap-3 mb-4">
         <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg">
           <Flame className="w-6 h-6 text-primary-foreground" />

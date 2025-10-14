@@ -8,6 +8,8 @@ interface CompletionDialogProps {
   time: number;
   score: number;
   difficulty: string;
+  lives: number;
+  maxLives: number;
 }
 
 interface LeaderboardEntry {
@@ -17,7 +19,7 @@ interface LeaderboardEntry {
   date: string;
 }
 
-export const CompletionDialog = ({ isOpen, onClose, time, score, difficulty }: CompletionDialogProps) => {
+export const CompletionDialog = ({ isOpen, onClose, time, score, difficulty, lives, maxLives }: CompletionDialogProps) => {
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
 
   useEffect(() => {
@@ -55,6 +57,13 @@ export const CompletionDialog = ({ isOpen, onClose, time, score, difficulty }: C
     return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
+  const calculateFinalScore = () => {
+    const timeBonus = Math.max(0, 1000 - time);
+    const difficultyMultiplier = difficulty === "easy" ? 1 : difficulty === "medium" ? 1.5 : difficulty === "hard" ? 2 : 2.5;
+    const livesBonus = lives * 50;
+    return Math.round((score + timeBonus + livesBonus) * difficultyMultiplier);
+  };
+
   const calculatePoints = (entry: LeaderboardEntry) => {
     let points = entry.score;
     // Bonus points for speed (less time = more bonus)
@@ -69,7 +78,7 @@ export const CompletionDialog = ({ isOpen, onClose, time, score, difficulty }: C
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/95 backdrop-blur-md animate-fade-in">
-      <div className="relative w-full max-w-2xl glass-card dark:glass-card rounded-3xl p-8 animate-scale-in shadow-2xl border-2 border-primary/30">
+      <div className="relative w-full max-w-2xl liquid-glass rounded-3xl p-8 animate-scale-in shadow-2xl border-2 border-primary/30">
         <button
           onClick={onClose}
           className="absolute top-4 right-4 text-muted-foreground hover:text-foreground transition-colors"
@@ -96,15 +105,20 @@ export const CompletionDialog = ({ isOpen, onClose, time, score, difficulty }: C
 
           {/* Stats */}
           <div className="grid grid-cols-2 gap-4 py-4">
-            <div className="glass-card dark:glass-card rounded-xl p-4 space-y-2">
+            <div className="liquid-glass rounded-xl p-4 space-y-2">
               <Clock className="w-8 h-8 mx-auto text-primary" />
               <div className="text-2xl font-black text-foreground">{formatTime(time)}</div>
               <div className="text-sm text-muted-foreground">Time</div>
             </div>
-            <div className="glass-card dark:glass-card rounded-xl p-4 space-y-2">
+            <div className="liquid-glass rounded-xl p-4 space-y-2">
               <Star className="w-8 h-8 mx-auto text-primary" />
-              <div className="text-2xl font-black text-foreground">{calculatePoints({ time, score, difficulty, date: "" })}</div>
+              <div className="text-2xl font-black text-foreground">{calculateFinalScore()}</div>
               <div className="text-sm text-muted-foreground">Total Points</div>
+            </div>
+            <div className="liquid-glass rounded-xl p-4 space-y-2 col-span-2">
+              <Trophy className="w-8 h-8 mx-auto text-destructive" />
+              <div className="text-2xl font-black text-foreground">{lives}/{maxLives}</div>
+              <div className="text-sm text-muted-foreground">Lives Remaining</div>
             </div>
           </div>
 
@@ -114,7 +128,7 @@ export const CompletionDialog = ({ isOpen, onClose, time, score, difficulty }: C
               <Trophy className="w-5 h-5 text-primary" />
               Top 10 Leaderboard
             </h3>
-            <div className="glass-card dark:glass-card rounded-xl p-4 max-h-64 overflow-y-auto space-y-2">
+            <div className="liquid-glass rounded-xl p-4 max-h-64 overflow-y-auto space-y-2">
               {leaderboard.map((entry, index) => (
                 <div
                   key={index}

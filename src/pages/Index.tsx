@@ -46,11 +46,24 @@ const Index = () => {
   const [showConfetti, setShowConfetti] = useState(false);
   const [showCompletionDialog, setShowCompletionDialog] = useState(false);
   const [isTimerRunning, setIsTimerRunning] = useState(true);
+  const [lives, setLives] = useState(3);
+  const [maxLives, setMaxLives] = useState(3);
   const { toast } = useToast();
   const { theme, setTheme } = useTheme();
 
+  const getMaxLivesForDifficulty = (diff: Difficulty): number => {
+    switch (diff) {
+      case "easy": return 3;
+      case "medium": return 4;
+      case "hard": return 5;
+      case "expert": return 6;
+      default: return 3;
+    }
+  };
+
   const initializeGame = useCallback((diff: Difficulty) => {
     const { puzzle, solution: sol } = generatePuzzle(diff);
+    const maxLivesForDiff = getMaxLivesForDifficulty(diff);
     setBoard(puzzle);
     setSolution(sol);
     setSelectedCell(null);
@@ -58,6 +71,8 @@ const Index = () => {
     setCurrentMoveIndex(-1);
     setTime(0);
     setScore(0);
+    setLives(maxLivesForDiff);
+    setMaxLives(maxLivesForDiff);
     setMessage("Game started! Fill the grid following Sudoku rules including diagonal constraints.");
     setMessageType("info");
     setIsGameWon(false);
@@ -138,13 +153,26 @@ const Index = () => {
     } else {
       // Place number
       if (!isValidMove(newBoard, row, col, num)) {
-        setMessage("Invalid move! This number conflicts with Sudoku rules.");
+        const newLives = lives - 1;
+        setLives(newLives);
+        setMessage(`Invalid move! Lives remaining: ${newLives}`);
         setMessageType("error");
         toast({
           title: "Invalid Move",
-          description: "This number conflicts with existing numbers in the same row, column, box, or diagonal.",
+          description: `This number conflicts with existing numbers. Lives: ${newLives}/${maxLives}`,
           variant: "destructive",
         });
+        
+        if (newLives <= 0) {
+          setMessage("Game Over! No lives remaining.");
+          setMessageType("error");
+          setIsTimerRunning(false);
+          toast({
+            title: "Game Over",
+            description: "You ran out of lives!",
+            variant: "destructive",
+          });
+        }
         return;
       }
 
@@ -421,13 +449,15 @@ const Index = () => {
       )}
 
       {/* Completion Dialog */}
-      <CompletionDialog
-        isOpen={showCompletionDialog}
-        onClose={() => setShowCompletionDialog(false)}
-        time={time}
-        score={score}
-        difficulty={difficulty}
-      />
+        <CompletionDialog
+          isOpen={showCompletionDialog}
+          onClose={() => setShowCompletionDialog(false)}
+          time={time}
+          score={score}
+          difficulty={difficulty}
+          lives={lives}
+          maxLives={maxLives}
+        />
 
       {/* Enhanced futuristic background effects */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/20 via-background to-background pointer-events-none" />
@@ -461,8 +491,21 @@ const Index = () => {
         </header>
 
         <div className="flex flex-col lg:flex-row gap-4 md:gap-6 items-start justify-center">
-          {/* Center - Grid and Number Pad */}
-          <div className="w-full lg:flex-1 space-y-4 order-2 lg:order-1">
+          {/* Left side - Game Status and Difficulty */}
+          <div className="w-full lg:w-80 space-y-4 order-1">
+            <GameStatus time={time} score={score} message={message} messageType={messageType} lives={lives} maxLives={maxLives} />
+            <DifficultySelector 
+              currentDifficulty={difficulty} 
+              onSelect={(diff) => {
+                setDifficulty(diff);
+                initializeGame(diff);
+              }} 
+              onNewGame={() => initializeGame(difficulty)} 
+            />
+          </div>
+
+          {/* Center - Grid */}
+          <div className="w-full lg:flex-1 space-y-4 order-2">
             <SudokuGrid
               board={board}
               selectedCell={selectedCell}
@@ -471,8 +514,8 @@ const Index = () => {
               onCellHover={setHoveredCell}
             />
 
-            {/* Game Rules - Below grid on mobile */}
-            <div className="glass-card dark:glass-card rounded-2xl shadow-2xl p-4 md:p-6 space-y-3 text-xs md:text-sm border border-primary/30 hover:border-primary/50 transition-all duration-300">
+            {/* Game Rules - Below grid */}
+            <div className="liquid-glass rounded-2xl shadow-2xl p-4 md:p-6 space-y-3 text-xs md:text-sm border border-primary/30 hover:border-primary/50 transition-all duration-300">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg">
                   <span className="text-lg md:text-2xl">🎯</span>
@@ -490,38 +533,18 @@ const Index = () => {
                 </li>
                 <li className="flex items-start gap-2 md:gap-3 group/item hover:text-foreground transition-colors">
                   <span className="text-primary mt-0.5 md:mt-1 text-base md:text-lg group-hover/item:scale-125 transition-transform">▸</span>
-                  <span className="flex-1">Toggle <strong className="text-foreground">Pencil mode</strong> to add candidate numbers</span>
+                  <span className="flex-1">Click a cell and press <strong className="text-foreground">1-9</strong> or use the number pad</span>
                 </li>
                 <li className="flex items-start gap-2 md:gap-3 group/item hover:text-foreground transition-colors">
                   <span className="text-accent mt-0.5 md:mt-1 text-base md:text-lg group-hover/item:scale-125 transition-transform">▸</span>
-                  <span className="flex-1">Use <strong className="text-foreground">keyboard 1-9</strong> or tap number pad</span>
-                </li>
-                <li className="flex items-start gap-2 md:gap-3 group/item hover:text-foreground transition-colors">
-                  <span className="text-primary mt-0.5 md:mt-1 text-base md:text-lg group-hover/item:scale-125 transition-transform">▸</span>
-                  <span className="flex-1">Press <strong className="text-foreground">Del/Backspace</strong> to clear cells</span>
+                  <span className="flex-1">Use <strong className="text-foreground">Pencil Mode</strong> to make notes in cells</span>
                 </li>
               </ul>
             </div>
           </div>
 
-          {/* Right sidebar - Controls */}
-          <div className="w-full lg:w-80 xl:w-96 space-y-4 order-1 lg:order-2">
-            <GameStatus
-              time={time}
-              score={score}
-              message={message}
-              messageType={messageType}
-            />
-
-            <DifficultySelector
-              currentDifficulty={difficulty}
-              onSelect={(diff) => {
-                setDifficulty(diff);
-                initializeGame(diff);
-              }}
-              onNewGame={() => initializeGame(difficulty)}
-            />
-
+          {/* Right Side - Number Pad */}
+          <div className="w-full lg:w-80 space-y-4 order-3">
             <NumberPad
               onNumberSelect={handleNumberInput}
               onClear={handleClear}

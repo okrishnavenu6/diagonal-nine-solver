@@ -46,21 +46,22 @@ export const NumberPad = ({
               onClick={() => onNumberSelect(num)}
               disabled={isDisabled}
               className={cn(
-                "relative aspect-square rounded-xl font-black text-xl md:text-2xl transition-all duration-300 border-2",
-                "hover:scale-110 active:scale-95 group/btn overflow-hidden shadow-lg",
-                isDisabled
-                  ? "bg-muted/20 border-muted/30 text-muted-foreground/30 cursor-not-allowed"
-                  : "bg-gradient-to-br from-primary/30 via-primary/20 to-primary/10 border-primary/50 hover:border-primary text-primary-foreground hover:shadow-[0_0_30px_rgba(var(--primary-rgb),0.6)] hover:from-primary/50 hover:via-primary/40 hover:to-primary/30"
+                "w-full aspect-square text-2xl font-black transition-all duration-300",
+                "bg-gradient-to-br from-primary/25 to-primary/10 hover:from-primary/50 hover:to-primary/25",
+                "border-2 border-primary/40 hover:border-primary/70",
+                "shadow-xl hover:shadow-[0_0_30px_rgba(var(--primary-rgb),0.6),inset_0_0_20px_rgba(var(--primary-rgb),0.1)]",
+                "active:scale-95 hover:scale-110",
+                "disabled:opacity-25 disabled:cursor-not-allowed disabled:hover:scale-100",
+                "rounded-xl backdrop-blur-md",
+                "relative overflow-hidden",
+                "before:absolute before:inset-0 before:bg-gradient-to-br before:from-white/20 before:to-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity"
               )}
             >
-              <span className="relative z-10">{num}</span>
+              <span className="relative z-10 text-foreground dark:text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.3)]">{num}</span>
               {!isDisabled && remaining > 0 && remaining < 9 && (
-                <span className="absolute top-1 right-1 w-5 h-5 bg-accent rounded-full text-[10px] font-black flex items-center justify-center shadow-lg animate-pulse-subtle">
+                <span className="absolute top-1 right-1 w-5 h-5 bg-accent rounded-full text-[10px] font-black flex items-center justify-center shadow-lg animate-pulse-subtle text-accent-foreground">
                   {remaining}
                 </span>
-              )}
-              {!isDisabled && (
-                <div className="absolute inset-0 bg-gradient-to-r from-primary/0 via-accent/30 to-primary/0 opacity-0 group-hover/btn:opacity-100 transition-opacity blur-sm" />
               )}
             </button>
           );

@@ -381,6 +381,66 @@ All colors MUST be HSL.
     }
   }
 
+  @keyframes victory-entrance {
+    0% {
+      transform: scale(0.5) rotate(-5deg);
+      opacity: 0;
+    }
+    50% {
+      transform: scale(1.05) rotate(2deg);
+    }
+    100% {
+      transform: scale(1) rotate(0deg);
+      opacity: 1;
+    }
+  }
+
+  @keyframes trophy-bounce {
+    0%, 100% {
+      transform: translateY(0) scale(1) rotate(0deg);
+    }
+    25% {
+      transform: translateY(-10px) scale(1.1) rotate(-5deg);
+    }
+    50% {
+      transform: translateY(0) scale(1.05) rotate(5deg);
+    }
+    75% {
+      transform: translateY(-5px) scale(1.08) rotate(-3deg);
+    }
+  }
+
+  @keyframes spin-slow {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  @keyframes starburst {
+    0%, 100% {
+      opacity: 0;
+      transform: scale(0.5);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1.2);
+    }
+  }
+
+  @keyframes slide-down {
+    0% {
+      opacity: 0;
+      transform: translateY(-30px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
   .animate-slide-up {
     animation: slide-up 0.5s ease-out;
   }
@@ -423,6 +483,27 @@ All colors MUST be HSL.
 
   .animate-victory {
     animation: victory-scale 1s ease-in-out infinite;
+  }
+
+  .animate-victory-entrance {
+    animation: victory-entrance 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+  }
+
+  .animate-trophy-bounce {
+    animation: trophy-bounce 2s ease-in-out infinite;
+  }
+
+  .animate-spin-slow {
+    animation: spin-slow 4s linear infinite;
+  }
+
+  .animate-starburst {
+    animation: starburst 2s ease-in-out infinite;
+  }
+
+  .animate-slide-down {
+    animation: slide-down 0.6s ease-out forwards;
+    opacity: 0;
   }
 
   .bg-grid-pattern {

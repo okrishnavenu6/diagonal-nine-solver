@@ -44,11 +44,11 @@ export const GameStatus = ({ time, score, message, messageType, lives, maxLives 
   };
 
   return (
-    <div className="liquid-glass rounded-2xl shadow-2xl p-4 md:p-6 space-y-4 border border-primary/30 hover:border-primary/50 transition-all duration-300">
+    <div className="liquid-glass rounded-3xl shadow-2xl p-4 md:p-6 space-y-4 border-2 border-primary/40 hover:border-primary/60 transition-all duration-300 hover:shadow-[0_0_40px_rgba(99,102,241,0.4)]">
       <div className="flex justify-between items-center gap-4">
         <div className="flex items-center gap-3 flex-1">
-          <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shadow-lg">
-            <Clock className="w-6 h-6 md:w-7 md:h-7 text-primary-foreground animate-pulse" />
+          <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-gradient-to-br from-primary via-primary/90 to-primary/70 flex items-center justify-center shadow-lg hover:shadow-2xl hover:shadow-primary/40 transition-all duration-300 hover:scale-110 cursor-pointer group">
+            <Clock className="w-6 h-6 md:w-7 md:h-7 text-primary-foreground group-hover:animate-spin transition-all" />
           </div>
           <div>
             <p className="text-xs text-muted-foreground font-black uppercase tracking-widest">Time</p>
@@ -58,25 +58,25 @@ export const GameStatus = ({ time, score, message, messageType, lives, maxLives 
         <div className="flex items-center gap-3 flex-1 justify-end">
           <div>
             <p className="text-xs text-muted-foreground font-black uppercase tracking-widest text-right">Score</p>
-            <p className="text-2xl md:text-3xl font-black text-transparent bg-gradient-to-r from-accent to-primary bg-clip-text drop-shadow-lg text-right">{score}</p>
+            <p className="text-2xl md:text-3xl font-black text-transparent bg-gradient-to-r from-accent via-primary to-accent bg-clip-text drop-shadow-lg text-right animate-glow-text">{score}</p>
           </div>
-          <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-gradient-to-br from-accent to-accent/60 flex items-center justify-center shadow-lg">
-            <Trophy className="w-6 h-6 md:w-7 md:h-7 text-accent-foreground animate-bounce-subtle" />
+          <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-gradient-to-br from-accent via-accent/90 to-accent/70 flex items-center justify-center shadow-lg hover:shadow-2xl hover:shadow-accent/40 transition-all duration-300 hover:scale-110 cursor-pointer group">
+            <Trophy className="w-6 h-6 md:w-7 md:h-7 text-accent-foreground group-hover:animate-bounce" />
           </div>
         </div>
       </div>
 
       {/* Lives Display */}
-      <div className="flex items-center justify-center gap-2 p-3 rounded-xl bg-gradient-to-br from-destructive/20 to-destructive/10 border border-destructive/30">
+      <div className="flex items-center justify-center gap-2 p-3 rounded-xl bg-gradient-to-br from-destructive/30 via-destructive/20 to-destructive/10 border-2 border-destructive/40 hover:border-destructive/60 transition-all duration-300 hover:shadow-lg hover:shadow-destructive/30">
         <p className="text-xs text-muted-foreground font-black uppercase tracking-widest">Lives</p>
         <div className="flex gap-1">
           {Array.from({ length: maxLives }).map((_, i) => (
             <Heart
               key={i}
               className={cn(
-                "w-5 h-5 transition-all duration-300",
+                "w-5 h-5 transition-all duration-300 hover:scale-125",
                 i < lives 
-                  ? "text-destructive fill-destructive animate-pulse-subtle" 
+                  ? "text-destructive fill-destructive drop-shadow-[0_0_8px_rgba(239,68,68,0.7)]" 
                   : "text-muted-foreground/30"
               )}
             />
@@ -87,12 +87,12 @@ export const GameStatus = ({ time, score, message, messageType, lives, maxLives 
       {message && (
         <div
           className={cn(
-            "p-3 md:p-4 rounded-xl text-xs md:text-sm font-bold backdrop-blur-sm animate-fade-in border-2 shadow-lg overflow-hidden",
+            "p-3 md:p-4 rounded-xl text-xs md:text-sm font-bold backdrop-blur-sm animate-fade-in border-2 shadow-lg overflow-hidden transform hover:scale-[1.02] transition-all duration-300",
             {
-              "bg-primary/20 text-primary border-primary/40 shadow-[0_0_20px_rgba(99,102,241,0.3)]": messageType === "info",
-              "bg-green-500/20 text-green-600 dark:text-green-400 border-green-500/40 shadow-[0_0_20px_rgba(34,197,94,0.3)]": messageType === "success",
-              "bg-destructive/20 text-destructive border-destructive/40 shadow-[0_0_20px_rgba(239,68,68,0.3)] animate-pulse-subtle": messageType === "error",
-              "bg-yellow-500/20 text-yellow-600 dark:text-yellow-400 border-yellow-500/40 shadow-[0_0_20px_rgba(234,179,8,0.3)]": messageType === "warning",
+              "bg-primary/30 text-primary border-primary/50 shadow-[0_0_25px_rgba(99,102,241,0.4)]": messageType === "info",
+              "bg-green-500/30 text-green-600 dark:text-green-400 border-green-500/50 shadow-[0_0_25px_rgba(34,197,94,0.4)]": messageType === "success",
+              "bg-destructive/30 text-destructive border-destructive/50 shadow-[0_0_25px_rgba(239,68,68,0.4)] animate-pulse-subtle": messageType === "error",
+              "bg-yellow-500/30 text-yellow-600 dark:text-yellow-400 border-yellow-500/50 shadow-[0_0_25px_rgba(234,179,8,0.4)]": messageType === "warning",
             }
           )}
         >

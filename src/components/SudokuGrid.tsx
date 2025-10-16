@@ -134,15 +134,15 @@ export const SudokuGrid = ({ board, selectedCell, hoveredCell, onCellSelect, onC
   }
 
   return (
-    <div className="liquid-glass rounded-3xl shadow-[0_0_60px_rgba(var(--primary-rgb),0.3)] p-4 md:p-6 lg:p-8 border-4 border-primary/40 hover:border-primary/60 transition-all duration-500 animate-rainbow-border hover:shadow-[0_0_80px_rgba(var(--primary-rgb),0.5)] relative overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-accent/10 rounded-3xl pointer-events-none animate-pulse" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(var(--primary-rgb),0.1),transparent_70%)] rounded-3xl pointer-events-none" />
+    <div className="liquid-glass rounded-3xl shadow-[0_0_80px_rgba(99,102,241,0.4)] p-4 md:p-6 lg:p-8 border-4 border-primary/50 hover:border-primary/70 transition-all duration-300 animate-rainbow-border hover:shadow-[0_0_100px_rgba(99,102,241,0.6)] relative overflow-hidden group/grid">
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/15 via-transparent to-accent/15 rounded-3xl pointer-events-none animate-pulse-slow" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(99,102,241,0.15),transparent_70%)] rounded-3xl pointer-events-none group-hover/grid:opacity-150 transition-opacity" />
       <div 
         className={cn(
-          "relative grid grid-cols-9 gap-0 bg-gradient-to-br from-primary/15 via-background/60 to-accent/15 p-1",
+          "relative grid grid-cols-9 gap-0 bg-gradient-to-br from-primary/20 via-background/70 to-accent/20 p-1",
           "aspect-square w-full max-w-[600px] mx-auto rounded-2xl overflow-hidden",
-          "shadow-[inset_0_0_50px_rgba(var(--primary-rgb),0.25),0_0_50px_rgba(var(--primary-rgb),0.35)]",
-          "border-2 border-primary/40"
+          "shadow-[inset_0_0_60px_rgba(99,102,241,0.3),0_0_60px_rgba(99,102,241,0.4)]",
+          "border-2 border-primary/50"
         )}
       >
         {board.map((row, rowIndex) =>

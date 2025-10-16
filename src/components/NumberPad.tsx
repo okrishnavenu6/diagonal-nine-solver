@@ -30,8 +30,8 @@ export const NumberPad = ({
   isPencilMode,
 }: NumberPadProps) => {
   return (
-    <div className="w-full liquid-glass rounded-2xl shadow-2xl p-4 md:p-6 space-y-4 border border-primary/30 hover:border-primary/50 transition-all duration-300">
-      <h3 className="font-black text-center text-foreground text-base md:text-lg uppercase tracking-widest">
+    <div className="w-full liquid-glass rounded-3xl shadow-2xl p-4 md:p-6 space-y-4 border-2 border-primary/40 hover:border-primary/60 transition-all duration-300 hover:shadow-[0_0_40px_rgba(99,102,241,0.4)]">
+      <h3 className="font-black text-center text-foreground text-base md:text-lg uppercase tracking-widest drop-shadow-lg">
         NUMBER PAD
       </h3>
       
@@ -46,21 +46,22 @@ export const NumberPad = ({
               onClick={() => onNumberSelect(num)}
               disabled={isDisabled}
               className={cn(
-                "relative aspect-square rounded-xl font-black text-xl md:text-2xl transition-all duration-300 border-2",
-                "hover:scale-110 active:scale-95 group/btn overflow-hidden shadow-lg",
+                "relative aspect-square rounded-2xl font-black text-2xl md:text-3xl transition-all duration-200 border-2 overflow-hidden group/number",
+                "shadow-lg active:shadow-2xl transform",
                 isDisabled
-                  ? "bg-muted/20 border-muted/30 text-muted-foreground/30 cursor-not-allowed"
-                  : "bg-gradient-to-br from-primary/30 via-primary/20 to-primary/10 border-primary/50 hover:border-primary text-primary-foreground hover:shadow-[0_0_30px_rgba(var(--primary-rgb),0.6)] hover:from-primary/50 hover:via-primary/40 hover:to-primary/30"
+                  ? "bg-muted/30 border-muted/30 text-muted-foreground/30 cursor-not-allowed opacity-50"
+                  : "bg-gradient-to-br from-primary via-primary to-primary/80 text-primary-foreground border-primary/80 hover:from-primary/90 hover:to-primary shadow-[0_0_35px_rgba(99,102,241,0.7),0_0_70px_rgba(99,102,241,0.3)] hover:shadow-[0_0_45px_rgba(99,102,241,0.9),0_0_90px_rgba(99,102,241,0.4)] hover:scale-[1.15] active:scale-[1.08]"
               )}
             >
-              <span className="relative z-10">{num}</span>
+              <div className={cn(
+                "absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent translate-x-[-200%] transition-transform duration-700",
+                !isDisabled && "group-hover/number:translate-x-[200%]"
+              )} />
+              <span className="relative z-10 drop-shadow-[0_0_10px_rgba(0,0,0,0.5)]">{num}</span>
               {!isDisabled && remaining > 0 && remaining < 9 && (
-                <span className="absolute top-1 right-1 w-5 h-5 bg-accent rounded-full text-[10px] font-black flex items-center justify-center shadow-lg animate-pulse-subtle">
+                <span className="absolute top-1 right-1 w-5 h-5 bg-accent rounded-full text-[10px] font-black flex items-center justify-center shadow-lg animate-pulse-subtle z-20">
                   {remaining}
                 </span>
-              )}
-              {!isDisabled && (
-                <div className="absolute inset-0 bg-gradient-to-r from-primary/0 via-accent/30 to-primary/0 opacity-0 group-hover/btn:opacity-100 transition-opacity blur-sm" />
               )}
             </button>
           );
@@ -68,23 +69,23 @@ export const NumberPad = ({
         
         <button
           onClick={onClear}
-          className="col-span-3 aspect-auto h-14 md:h-16 bg-gradient-to-br from-destructive/30 via-destructive/20 to-destructive/10 hover:from-destructive/50 hover:via-destructive/40 hover:to-destructive/30 rounded-xl font-black text-destructive-foreground text-sm md:text-base uppercase tracking-wider transition-all duration-300 hover:scale-105 active:scale-95 border-2 border-destructive/50 hover:border-destructive hover:shadow-[0_0_30px_rgba(239,68,68,0.6)] flex items-center justify-center gap-2 shadow-lg group/btn overflow-hidden"
+          className="relative col-span-3 aspect-auto h-14 md:h-16 bg-gradient-to-br from-destructive via-destructive/90 to-destructive/70 hover:from-destructive/90 hover:via-destructive/80 hover:to-destructive/60 rounded-2xl font-black text-destructive-foreground text-sm md:text-base uppercase tracking-wider transition-all duration-200 transform hover:scale-[1.08] active:scale-[1.02] border-2 border-destructive/80 hover:border-destructive hover:shadow-[0_0_40px_rgba(239,68,68,0.7),0_0_80px_rgba(239,68,68,0.3)] flex items-center justify-center gap-2 shadow-lg group/clear overflow-hidden"
         >
-          <Eraser className="w-4 h-4 md:w-5 md:h-5" />
-          CLEAR
-          <div className="absolute inset-0 bg-gradient-to-r from-destructive/0 via-destructive/40 to-destructive/0 opacity-0 group-hover/btn:opacity-100 transition-opacity blur-sm" />
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-200%] group-hover/clear:translate-x-[200%] transition-transform duration-700" />
+          <Eraser className="w-4 h-4 md:w-5 md:h-5 relative z-10" />
+          <span className="relative z-10 drop-shadow-[0_0_10px_rgba(0,0,0,0.5)]">CLEAR</span>
         </button>
       </div>
 
       {/* Control Buttons */}
-      <div className="space-y-2 pt-2 border-t border-primary/20">
+      <div className="space-y-2 pt-2 border-t-2 border-primary/30">
         <div className="grid grid-cols-2 gap-2">
           <Button
             onClick={onUndo}
             disabled={!canUndo}
             size="sm"
             variant="outline"
-            className="font-bold border-primary/40 hover:bg-primary/20 hover:border-primary disabled:opacity-30 h-10"
+            className="font-bold border-2 border-primary/50 hover:bg-primary/30 hover:border-primary disabled:opacity-30 h-10 hover:shadow-lg transition-all duration-200 hover:scale-[1.05] active:scale-100"
           >
             <Undo className="w-4 h-4 mr-1" />
             Undo
@@ -94,7 +95,7 @@ export const NumberPad = ({
             disabled={!canRedo}
             size="sm"
             variant="outline"
-            className="font-bold border-primary/40 hover:bg-primary/20 hover:border-primary disabled:opacity-30 h-10"
+            className="font-bold border-2 border-primary/50 hover:bg-primary/30 hover:border-primary disabled:opacity-30 h-10 hover:shadow-lg transition-all duration-200 hover:scale-[1.05] active:scale-100"
           >
             <Redo className="w-4 h-4 mr-1" />
             Redo
@@ -106,7 +107,7 @@ export const NumberPad = ({
             onClick={onHint}
             size="sm"
             variant="outline"
-            className="font-bold border-warning/40 hover:bg-warning/20 hover:border-warning text-warning h-10"
+            className="font-bold border-2 border-warning/50 hover:bg-warning/30 hover:border-warning text-warning h-10 hover:shadow-lg hover:shadow-warning/30 transition-all duration-200 hover:scale-[1.05] active:scale-100"
           >
             <Lightbulb className="w-4 h-4 mr-1" />
             Hint
@@ -115,7 +116,7 @@ export const NumberPad = ({
             onClick={onValidate}
             size="sm"
             variant="outline"
-            className="font-bold border-success/40 hover:bg-success/20 hover:border-success text-success h-10"
+            className="font-bold border-2 border-success/50 hover:bg-success/30 hover:border-success text-success h-10 hover:shadow-lg hover:shadow-success/30 transition-all duration-200 hover:scale-[1.05] active:scale-100"
           >
             <CheckCircle className="w-4 h-4 mr-1" />
             Check
@@ -127,14 +128,20 @@ export const NumberPad = ({
           size="sm"
           variant={isPencilMode ? "default" : "outline"}
           className={cn(
-            "w-full font-bold h-10",
+            "w-full font-bold h-10 transition-all duration-200 hover:scale-[1.05] active:scale-100 relative overflow-hidden group/pencil",
             isPencilMode
-              ? "bg-accent text-accent-foreground hover:bg-accent/90 shadow-lg"
-              : "border-accent/40 hover:bg-accent/20 hover:border-accent text-accent"
+              ? "bg-gradient-to-r from-accent via-accent/90 to-accent/80 text-accent-foreground hover:opacity-90 shadow-lg hover:shadow-[0_0_30px_rgba(239,65,60,0.5)]"
+              : "border-2 border-accent/50 hover:bg-accent/30 hover:border-accent text-accent hover:shadow-lg"
           )}
         >
-          <Pencil className="w-4 h-4 mr-2" />
-          {isPencilMode ? "PENCIL ON" : "PENCIL OFF"}
+          {isPencilMode && (
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-200%] group-hover/pencil:translate-x-[200%] transition-transform duration-700" />
+          )}
+          <Pencil className={cn("w-4 h-4 mr-2 relative z-10", isPencilMode && "animate-bounce-subtle")} />
+          <span className="relative z-10">{isPencilMode ? "PENCIL ON" : "PENCIL OFF"}</span>
+          {isPencilMode && (
+            <div className="absolute top-1 right-1 w-2 h-2 bg-green-400 rounded-full animate-pulse shadow-[0_0_10px_rgba(34,197,94,0.8)] z-20" />
+          )}
         </Button>
       </div>
     </div>

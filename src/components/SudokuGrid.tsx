@@ -134,17 +134,19 @@ export const SudokuGrid = ({ board, selectedCell, hoveredCell, onCellSelect, onC
   }
 
   return (
-    <div className="liquid-glass rounded-3xl shadow-[0_0_80px_rgba(99,102,241,0.4)] p-4 md:p-6 lg:p-8 border-4 border-primary/50 hover:border-primary/70 transition-all duration-300 animate-rainbow-border hover:shadow-[0_0_100px_rgba(99,102,241,0.6)] relative overflow-hidden group/grid">
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/15 via-transparent to-accent/15 rounded-3xl pointer-events-none animate-pulse-slow" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(99,102,241,0.15),transparent_70%)] rounded-3xl pointer-events-none group-hover/grid:opacity-150 transition-opacity" />
-      <div 
-        className={cn(
-          "relative grid grid-cols-9 gap-0 bg-gradient-to-br from-primary/20 via-background/70 to-accent/20 p-1",
-          "aspect-square w-full max-w-[600px] mx-auto rounded-2xl overflow-hidden",
-          "shadow-[inset_0_0_60px_rgba(99,102,241,0.3),0_0_60px_rgba(99,102,241,0.4)]",
-          "border-2 border-primary/50"
-        )}
-      >
+    <div className="perspective-3d">
+      <div className="liquid-glass rounded-3xl shadow-[0_0_80px_rgba(99,102,241,0.4),0_30px_60px_rgba(99,102,241,0.3)] p-4 md:p-6 lg:p-8 border-4 border-primary/50 hover:border-primary/70 transition-all duration-300 animate-rainbow-border hover:shadow-[0_0_120px_rgba(99,102,241,0.6),0_40px_80px_rgba(99,102,241,0.4)] relative overflow-hidden group/grid transform-3d transform-3d-hover">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/15 via-transparent to-accent/15 rounded-3xl pointer-events-none animate-pulse-slow" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(99,102,241,0.15),transparent_70%)] rounded-3xl pointer-events-none group-hover/grid:opacity-150 transition-opacity" />
+        <div 
+          className={cn(
+            "relative grid grid-cols-9 gap-0 bg-gradient-to-br from-primary/20 via-background/70 to-accent/20 p-1",
+            "aspect-square w-full max-w-[600px] mx-auto rounded-2xl overflow-hidden",
+            "shadow-[inset_0_0_60px_rgba(99,102,241,0.3),0_0_60px_rgba(99,102,241,0.4),0_20px_40px_rgba(0,0,0,0.2)]",
+            "border-2 border-primary/50",
+            "transform-style: preserve-3d"
+          )}
+        >
         {board.map((row, rowIndex) =>
           row.map((cell, colIndex) => {
             const key = `${rowIndex},${colIndex}`;
@@ -175,6 +177,7 @@ export const SudokuGrid = ({ board, selectedCell, hoveredCell, onCellSelect, onC
             );
           })
         )}
+        </div>
       </div>
     </div>
   );

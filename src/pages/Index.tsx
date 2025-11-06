@@ -481,12 +481,13 @@ const Index = () => {
       </div>
       
       <div className="max-w-[1800px] mx-auto space-y-4 md:space-y-6 lg:space-y-8 relative z-10">
-        <header className="text-center space-y-2 md:space-y-4 animate-fade-in">
-          <div className="relative inline-block">
-            <h1 className={`text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-black bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent drop-shadow-2xl ${isGameWon ? 'animate-victory' : 'animate-glow'}`}>
+        <header className="text-center space-y-2 md:space-y-4 animate-fade-in relative">
+          <div className="relative inline-block perspective-3d">
+            <h1 className={`relative z-10 text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-gaming font-black bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent drop-shadow-[0_0_40px_rgba(99,102,241,0.8)] tracking-[0.1em] ${isGameWon ? 'animate-victory' : 'animate-glow'}`}>
               SUDOKU X
             </h1>
-            <div className="absolute inset-0 bg-gradient-to-r from-primary/20 via-accent/20 to-primary/20 blur-3xl -z-10 animate-pulse" />
+            <div className="absolute inset-0 bg-gradient-to-r from-primary/30 via-accent/30 to-primary/30 blur-3xl -z-10 animate-pulse" />
+            <div className="absolute inset-0 bg-gradient-to-r from-primary/20 via-accent/20 to-primary/20 blur-[60px] -z-10 animate-float" />
           </div>
         </header>
 

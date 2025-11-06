@@ -30,12 +30,14 @@ export const NumberPad = ({
   isPencilMode,
 }: NumberPadProps) => {
   return (
-    <div className="w-full liquid-glass rounded-3xl shadow-2xl p-4 md:p-6 space-y-4 border-2 border-primary/40 hover:border-primary/60 transition-all duration-300 hover:shadow-[0_0_40px_rgba(99,102,241,0.4)]">
-      <h3 className="font-black text-center text-foreground text-base md:text-lg uppercase tracking-widest drop-shadow-lg">
+    <div className="w-full liquid-glass rounded-3xl shadow-2xl p-4 md:p-6 space-y-4 border-2 border-primary/40 hover:border-primary/60 transition-all duration-300 hover:shadow-[0_0_40px_rgba(99,102,241,0.4),0_20px_60px_rgba(99,102,241,0.3)] relative overflow-hidden group/pad transform-3d perspective-3d">
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-accent/10 rounded-3xl pointer-events-none animate-pulse-slow" />
+      <div className="absolute top-0 right-0 w-40 h-40 bg-primary/20 rounded-full blur-[80px] animate-float pointer-events-none" />
+      <h3 className="relative z-10 font-gaming font-black text-center text-foreground text-base md:text-lg uppercase tracking-[0.3em] drop-shadow-[0_0_20px_rgba(99,102,241,0.6)] animate-glow-text">
         NUMBER PAD
       </h3>
       
-      <div className="grid grid-cols-3 gap-2 md:gap-3">
+      <div className="relative grid grid-cols-3 gap-2 md:gap-3 z-10">
         {Array.from({ length: 9 }, (_, i) => i + 1).map((num) => {
           const remaining = remainingNumbers[num] || 0;
           const isDisabled = remaining === 0;
@@ -46,20 +48,23 @@ export const NumberPad = ({
               onClick={() => onNumberSelect(num)}
               disabled={isDisabled}
               className={cn(
-                "relative aspect-square rounded-2xl font-black text-2xl md:text-3xl transition-all duration-200 border-2 overflow-hidden group/number",
+                "relative aspect-square rounded-2xl font-gaming font-black text-2xl md:text-3xl transition-all duration-150 border-2 overflow-hidden group/number",
                 "shadow-lg active:shadow-2xl transform",
                 isDisabled
                   ? "bg-muted/30 border-muted/30 text-muted-foreground/30 cursor-not-allowed opacity-50"
-                  : "bg-gradient-to-br from-primary via-primary to-primary/80 text-primary-foreground border-primary/80 hover:from-primary/90 hover:to-primary shadow-[0_0_35px_rgba(99,102,241,0.7),0_0_70px_rgba(99,102,241,0.3)] hover:shadow-[0_0_45px_rgba(99,102,241,0.9),0_0_90px_rgba(99,102,241,0.4)] hover:scale-[1.15] active:scale-[1.08]"
+                  : "bg-gradient-to-br from-primary via-primary to-primary/80 text-primary-foreground border-primary/80 hover:from-primary/90 hover:to-primary shadow-[0_0_35px_rgba(99,102,241,0.7),0_0_70px_rgba(99,102,241,0.3),0_15px_40px_rgba(99,102,241,0.25)] hover:shadow-[0_0_45px_rgba(99,102,241,0.9),0_0_90px_rgba(99,102,241,0.4),0_20px_50px_rgba(99,102,241,0.35)] hover:scale-[1.15] hover:translateY-[-4px] active:scale-[1.08] active:translateY-[-2px]"
               )}
             >
-              <div className={cn(
-                "absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent translate-x-[-200%] transition-transform duration-700",
-                !isDisabled && "group-hover/number:translate-x-[200%]"
-              )} />
-              <span className="relative z-10 drop-shadow-[0_0_10px_rgba(0,0,0,0.5)]">{num}</span>
+              {!isDisabled && (
+                <>
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent translate-x-[-200%] group-hover/number:translate-x-[200%] transition-transform duration-700" />
+                  <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover/number:opacity-100 transition-opacity duration-300" />
+                  <div className="absolute -inset-1 bg-gradient-to-br from-primary via-accent to-primary opacity-0 group-hover/number:opacity-50 blur-lg transition-all duration-300" />
+                </>
+              )}
+              <span className="relative z-10 drop-shadow-[0_0_15px_rgba(255,255,255,0.8)]">{num}</span>
               {!isDisabled && remaining > 0 && remaining < 9 && (
-                <span className="absolute top-1 right-1 w-5 h-5 bg-accent rounded-full text-[10px] font-black flex items-center justify-center shadow-lg animate-pulse-subtle z-20">
+                <span className="absolute top-1 right-1 w-5 h-5 bg-accent rounded-full text-[10px] font-black flex items-center justify-center shadow-[0_0_15px_rgba(239,65,60,0.8)] animate-pulse-subtle z-20 font-display">
                   {remaining}
                 </span>
               )}
@@ -69,11 +74,12 @@ export const NumberPad = ({
         
         <button
           onClick={onClear}
-          className="relative col-span-3 aspect-auto h-14 md:h-16 bg-gradient-to-br from-destructive via-destructive/90 to-destructive/70 hover:from-destructive/90 hover:via-destructive/80 hover:to-destructive/60 rounded-2xl font-black text-destructive-foreground text-sm md:text-base uppercase tracking-wider transition-all duration-200 transform hover:scale-[1.08] active:scale-[1.02] border-2 border-destructive/80 hover:border-destructive hover:shadow-[0_0_40px_rgba(239,68,68,0.7),0_0_80px_rgba(239,68,68,0.3)] flex items-center justify-center gap-2 shadow-lg group/clear overflow-hidden"
+          className="relative col-span-3 aspect-auto h-14 md:h-16 bg-gradient-to-br from-destructive via-destructive/90 to-destructive/70 hover:from-destructive/90 hover:via-destructive/80 hover:to-destructive/60 rounded-2xl font-gaming font-black text-destructive-foreground text-sm md:text-base uppercase tracking-[0.2em] transition-all duration-150 transform hover:scale-[1.08] hover:translateY-[-2px] active:scale-[1.02] active:translateY-[0px] border-2 border-destructive/80 hover:border-destructive hover:shadow-[0_0_40px_rgba(239,68,68,0.7),0_0_80px_rgba(239,68,68,0.3),0_15px_40px_rgba(239,68,68,0.25)] flex items-center justify-center gap-2 shadow-lg group/clear overflow-hidden"
         >
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-200%] group-hover/clear:translate-x-[200%] transition-transform duration-700" />
-          <Eraser className="w-4 h-4 md:w-5 md:h-5 relative z-10" />
-          <span className="relative z-10 drop-shadow-[0_0_10px_rgba(0,0,0,0.5)]">CLEAR</span>
+          <div className="absolute -inset-1 bg-gradient-to-br from-destructive via-red-600 to-destructive opacity-0 group-hover/clear:opacity-50 blur-lg transition-all duration-300" />
+          <Eraser className="w-4 h-4 md:w-5 md:h-5 relative z-10 group-hover/clear:rotate-12 transition-transform" />
+          <span className="relative z-10 drop-shadow-[0_0_15px_rgba(255,255,255,0.8)]">CLEAR</span>
         </button>
       </div>
 

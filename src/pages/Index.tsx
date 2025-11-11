@@ -4,9 +4,16 @@ import { NumberPad } from "@/components/NumberPad";
 import { GameStatus } from "@/components/GameStatus";
 import { DifficultySelector } from "@/components/DifficultySelector";
 import { CompletionDialog } from "@/components/CompletionDialog";
+import { ParticleTrail } from "@/components/ParticleTrail";
+import { Auth } from "@/components/Auth";
+import { Leaderboard } from "@/components/Leaderboard";
+import { Achievements } from "@/components/Achievements";
+import { VolumeControl } from "@/components/VolumeControl";
 import { Button } from "@/components/ui/button";
-import { Moon, Sun, Sparkles } from "lucide-react";
+import { Moon, Sun, Sparkles, Trophy, Award, LogIn, LogOut } from "lucide-react";
 import { useTheme } from "next-themes";
+import { useSoundEffects } from "@/hooks/useSoundEffects";
+import { supabase } from "@/integrations/supabase/client";
 import {
   generatePuzzle,
   deepCopyBoard,
@@ -48,8 +55,13 @@ const Index = () => {
   const [isTimerRunning, setIsTimerRunning] = useState(true);
   const [lives, setLives] = useState(3);
   const [maxLives, setMaxLives] = useState(3);
+  const [showAuth, setShowAuth] = useState(false);
+  const [showLeaderboard, setShowLeaderboard] = useState(false);
+  const [showAchievements, setShowAchievements] = useState(false);
+  const [user, setUser] = useState<any>(null);
   const { toast } = useToast();
   const { theme, setTheme } = useTheme();
+  const { playSound, volume, setVolume, isMuted, toggleMute } = useSoundEffects();
 
   const getMaxLivesForDifficulty = (diff: Difficulty): number => {
     switch (diff) {
@@ -86,6 +98,18 @@ const Index = () => {
   }, [difficulty, initializeGame]);
 
   useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setUser(user);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  useEffect(() => {
     if (!isTimerRunning) return;
     
     const timer = setInterval(() => {
@@ -99,10 +123,12 @@ const Index = () => {
     if (board[row][col].given) {
       setMessage("Cannot modify given cells!");
       setMessageType("warning");
+      playSound('error');
       return;
     }
     setSelectedCell([row, col]);
     setMessage("");
+    playSound('select');
   };
 
   const addMove = (move: Move) => {
@@ -157,6 +183,7 @@ const Index = () => {
         setLives(newLives);
         setMessage(`Invalid move! Lives remaining: ${newLives}`);
         setMessageType("error");
+        playSound('error');
         toast({
           title: "Invalid Move",
           description: `This number conflicts with existing numbers. Lives: ${newLives}/${maxLives}`,
@@ -232,6 +259,7 @@ const Index = () => {
       setScore(score + 10);
       setMessage("Good move!");
       setMessageType("success");
+      playSound('place');
 
       // Check if puzzle is complete
       if (isPuzzleComplete(newBoard)) {
@@ -241,12 +269,62 @@ const Index = () => {
         setShowConfetti(true);
         setIsTimerRunning(false);
         setShowCompletionDialog(true);
+        playSound('victory');
+        
+        // Update leaderboard if logged in
+        if (user) {
+          updateLeaderboard();
+        }
+        
         setTimeout(() => setShowConfetti(false), 5000);
       }
     }
   };
 
+  const updateLeaderboard = async () => {
+    if (!user) return;
+
+    try {
+      const { data: existingEntry } = await supabase
+        .from('leaderboard')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('difficulty', difficulty)
+        .single();
+
+      if (existingEntry) {
+        await supabase
+          .from('leaderboard')
+          .update({
+            score: existingEntry.score + score,
+            games_completed: existingEntry.games_completed + 1,
+            best_time: existingEntry.best_time ? Math.min(existingEntry.best_time, time) : time
+          })
+          .eq('id', existingEntry.id);
+      } else {
+        await supabase
+          .from('leaderboard')
+          .insert({
+            user_id: user.id,
+            score,
+            games_completed: 1,
+            best_time: time,
+            difficulty
+          });
+      }
+    } catch (error) {
+      console.error('Error updating leaderboard:', error);
+    }
+  };
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    setUser(null);
+    toast({ title: 'Logged out successfully' });
+  };
+
   const handleClear = () => {
+    playSound('click');
     if (!selectedCell) {
       setMessage("Please select a cell first!");
       setMessageType("info");
@@ -422,6 +500,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen p-2 sm:p-4 md:p-6 lg:p-8 relative overflow-hidden">
+      <ParticleTrail />
       {/* Confetti animation on win */}
       {showConfetti && (
         <div className="fixed inset-0 pointer-events-none z-50 overflow-hidden">
@@ -466,19 +545,70 @@ const Index = () => {
       <div className="absolute bottom-0 right-1/4 w-[400px] md:w-[600px] h-[400px] md:h-[600px] bg-accent/20 rounded-full blur-[80px] md:blur-[120px] pointer-events-none animate-float-delayed" />
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] md:w-[800px] h-[600px] md:h-[800px] bg-primary/5 rounded-full blur-[100px] md:blur-[150px] pointer-events-none animate-pulse-slow" />
       
-      {/* Dark mode toggle */}
-      <div className="fixed top-2 right-2 sm:top-4 sm:right-4 z-50">
+      {/* Top controls */}
+      <div className="fixed top-2 right-2 sm:top-4 sm:right-4 z-50 flex gap-2">
+        <VolumeControl
+          volume={volume}
+          isMuted={isMuted}
+          onVolumeChange={setVolume}
+          onToggleMute={toggleMute}
+        />
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={() => setShowLeaderboard(true)}
+          className="liquid-glass transform-3d transform-3d-hover"
+        >
+          <Trophy className="h-4 w-4" />
+        </Button>
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={() => setShowAchievements(true)}
+          className="liquid-glass transform-3d transform-3d-hover"
+        >
+          <Award className="h-4 w-4" />
+        </Button>
+        {user ? (
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={handleLogout}
+            className="liquid-glass transform-3d transform-3d-hover"
+          >
+            <LogOut className="h-4 w-4" />
+          </Button>
+        ) : (
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => setShowAuth(true)}
+            className="liquid-glass transform-3d transform-3d-hover"
+          >
+            <LogIn className="h-4 w-4" />
+          </Button>
+        )}
         <Button
           variant="outline"
           size="icon"
           onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-          className="rounded-full w-10 h-10 sm:w-12 sm:h-12 glass-card dark:glass-card border-primary/30 hover:border-primary/60 hover:shadow-[0_0_20px_rgba(var(--primary-rgb),0.4)] transition-all duration-300"
+          className="liquid-glass transform-3d transform-3d-hover"
         >
           <Sun className="h-5 w-5 sm:h-6 sm:w-6 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
           <Moon className="absolute h-5 w-5 sm:h-6 sm:w-6 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
           <span className="sr-only">Toggle theme</span>
         </Button>
       </div>
+
+      {/* Dialogs */}
+      <Auth open={showAuth} onClose={() => setShowAuth(false)} />
+      <Leaderboard open={showLeaderboard} onClose={() => setShowLeaderboard(false)} />
+      <Achievements
+        open={showAchievements}
+        onClose={() => setShowAchievements(false)}
+        currentScore={score}
+        gamesCompleted={0}
+      />
       
       <div className="max-w-[1800px] mx-auto space-y-4 md:space-y-6 lg:space-y-8 relative z-10">
         <header className="text-center space-y-2 md:space-y-4 animate-fade-in relative">

@@ -110,10 +110,13 @@ export type Database = {
         Row: {
           best_time: number | null
           created_at: string | null
+          current_streak: number | null
           difficulty: string
           games_completed: number | null
           games_played: number | null
           id: string
+          last_challenge_date: string | null
+          longest_streak: number | null
           total_score: number | null
           total_time: number | null
           updated_at: string | null
@@ -122,10 +125,13 @@ export type Database = {
         Insert: {
           best_time?: number | null
           created_at?: string | null
+          current_streak?: number | null
           difficulty: string
           games_completed?: number | null
           games_played?: number | null
           id?: string
+          last_challenge_date?: string | null
+          longest_streak?: number | null
           total_score?: number | null
           total_time?: number | null
           updated_at?: string | null
@@ -134,10 +140,13 @@ export type Database = {
         Update: {
           best_time?: number | null
           created_at?: string | null
+          current_streak?: number | null
           difficulty?: string
           games_completed?: number | null
           games_played?: number | null
           id?: string
+          last_challenge_date?: string | null
+          longest_streak?: number | null
           total_score?: number | null
           total_time?: number | null
           updated_at?: string | null
@@ -199,6 +208,33 @@ export type Database = {
         }
         Relationships: []
       }
+      streak_rewards: {
+        Row: {
+          created_at: string | null
+          description: string
+          id: string
+          reward_type: string
+          reward_value: number
+          streak_days: number
+        }
+        Insert: {
+          created_at?: string | null
+          description: string
+          id?: string
+          reward_type: string
+          reward_value: number
+          streak_days: number
+        }
+        Update: {
+          created_at?: string | null
+          description?: string
+          id?: string
+          reward_type?: string
+          reward_value?: number
+          streak_days?: number
+        }
+        Relationships: []
+      }
       user_achievements: {
         Row: {
           achievement_id: string
@@ -224,6 +260,35 @@ export type Database = {
             columns: ["achievement_id"]
             isOneToOne: false
             referencedRelation: "achievements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_streak_rewards: {
+        Row: {
+          earned_at: string | null
+          id: string
+          streak_reward_id: string
+          user_id: string
+        }
+        Insert: {
+          earned_at?: string | null
+          id?: string
+          streak_reward_id: string
+          user_id: string
+        }
+        Update: {
+          earned_at?: string | null
+          id?: string
+          streak_reward_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_streak_rewards_streak_reward_id_fkey"
+            columns: ["streak_reward_id"]
+            isOneToOne: false
+            referencedRelation: "streak_rewards"
             referencedColumns: ["id"]
           },
         ]

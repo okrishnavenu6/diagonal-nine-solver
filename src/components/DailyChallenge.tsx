@@ -6,6 +6,7 @@ import { Trophy, Clock, Star, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { SudokuBoard } from "@/utils/sudokuGenerator";
+import { StreakDisplay } from "./StreakDisplay";
 
 interface DailyChallengeProps {
   open: boolean;
@@ -98,6 +99,7 @@ export const DailyChallenge = ({ open, onOpenChange, onStartChallenge, user }: D
           </div>
         ) : challenge ? (
           <div className="space-y-4">
+            {user && <StreakDisplay user={user} />}
             <Card className="p-4 bg-gradient-to-br from-primary/10 to-accent/10 border-primary/30">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm font-medium text-muted-foreground">Difficulty</span>

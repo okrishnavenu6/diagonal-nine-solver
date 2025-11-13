@@ -328,10 +328,9 @@ const Index = () => {
                 completion_time: time,
                 score: finalScore,
               });
-              toast({
-                title: "Daily Challenge Completed!",
-                description: "You've earned bonus rewards! 🎉",
-              });
+
+              // Update streak
+              await updateStreak();
             } catch (error) {
               console.error('Error saving daily challenge completion:', error);
             }
@@ -340,6 +339,129 @@ const Index = () => {
         
         setTimeout(() => setShowConfetti(false), 5000);
       }
+    }
+  };
+
+  const updateStreak = async () => {
+    if (!user) return;
+
+    try {
+      const today = new Date().toISOString().split('T')[0];
+      
+      // Get or create user statistics
+      const { data: stats } = await supabase
+        .from('game_statistics')
+        .select('*')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      let newStreak = 1;
+      let newLongestStreak = 1;
+
+      if (stats) {
+        const lastDate = stats.last_challenge_date;
+        
+        if (lastDate) {
+          const yesterday = new Date();
+          yesterday.setDate(yesterday.getDate() - 1);
+          const yesterdayStr = yesterday.toISOString().split('T')[0];
+          
+          // Check if completed yesterday (continue streak)
+          if (lastDate === yesterdayStr) {
+            newStreak = (stats.current_streak || 0) + 1;
+          } else if (lastDate === today) {
+            // Already completed today, don't update
+            return;
+          }
+          // If gap > 1 day, streak resets to 1
+        }
+
+        newLongestStreak = Math.max(stats.longest_streak || 0, newStreak);
+
+        await supabase
+          .from('game_statistics')
+          .update({
+            current_streak: newStreak,
+            longest_streak: newLongestStreak,
+            last_challenge_date: today,
+          })
+          .eq('id', stats.id);
+      } else {
+        // Create new stats entry with streak
+        await supabase.from('game_statistics').insert({
+          user_id: user.id,
+          difficulty: 'medium',
+          current_streak: 1,
+          longest_streak: 1,
+          last_challenge_date: today,
+          games_played: 0,
+          games_completed: 0,
+          total_time: 0,
+          total_score: 0,
+        });
+      }
+
+      // Check for streak rewards
+      await checkStreakRewards(newStreak);
+    } catch (error) {
+      console.error('Error updating streak:', error);
+    }
+  };
+
+  const checkStreakRewards = async (currentStreak: number) => {
+    if (!user) return;
+
+    try {
+      // Get all streak rewards
+      const { data: rewards } = await supabase
+        .from('streak_rewards')
+        .select('*')
+        .lte('streak_days', currentStreak);
+
+      if (!rewards) return;
+
+      // Get already earned rewards
+      const { data: earnedRewards } = await supabase
+        .from('user_streak_rewards')
+        .select('streak_reward_id')
+        .eq('user_id', user.id);
+
+      const earnedIds = earnedRewards?.map(r => r.streak_reward_id) || [];
+
+      // Find new rewards to grant
+      const newRewards = rewards.filter(r => !earnedIds.includes(r.id));
+
+      for (const reward of newRewards) {
+        // Grant the reward
+        await supabase.from('user_streak_rewards').insert({
+          user_id: user.id,
+          streak_reward_id: reward.id,
+        });
+
+        // Update total score
+        const { data: stats } = await supabase
+          .from('game_statistics')
+          .select('total_score')
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        if (stats) {
+          await supabase
+            .from('game_statistics')
+            .update({
+              total_score: stats.total_score + reward.reward_value,
+            })
+            .eq('user_id', user.id);
+        }
+
+        // Show toast notification
+        toast({
+          title: `🔥 Streak Reward Unlocked!`,
+          description: `${reward.description} - Earned ${reward.reward_value} bonus points!`,
+        });
+      }
+    } catch (error) {
+      console.error('Error checking streak rewards:', error);
     }
   };
 
@@ -535,23 +657,22 @@ const Index = () => {
       await updateStatistics(time, finalScore, true);
       await updateLeaderboard(time, finalScore);
 
-      // Handle daily challenge completion
-      if (isDailyChallenge && currentChallengeId && user) {
-        try {
-          await supabase.from('daily_challenge_completions').insert({
-            user_id: user.id,
-            challenge_id: currentChallengeId,
-            completion_time: time,
-            score: finalScore,
-          });
-          toast({
-            title: "Daily Challenge Completed!",
-            description: "You've earned bonus rewards! 🎉",
-          });
-        } catch (error) {
-          console.error('Error saving daily challenge completion:', error);
+        // Handle daily challenge completion
+        if (isDailyChallenge && currentChallengeId && user) {
+          try {
+            await supabase.from('daily_challenge_completions').insert({
+              user_id: user.id,
+              challenge_id: currentChallengeId,
+              completion_time: time,
+              score: finalScore,
+            });
+
+            // Update streak
+            await updateStreak();
+          } catch (error) {
+            console.error('Error saving daily challenge completion:', error);
+          }
         }
-      }
 
       setShowCompletionDialog(true);
       setTimeout(() => setShowConfetti(false), 5000);

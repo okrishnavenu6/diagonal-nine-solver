@@ -44,6 +44,107 @@ export type Database = {
         }
         Relationships: []
       }
+      daily_challenge_completions: {
+        Row: {
+          challenge_id: string
+          completed_at: string | null
+          completion_time: number
+          id: string
+          score: number
+          user_id: string
+        }
+        Insert: {
+          challenge_id: string
+          completed_at?: string | null
+          completion_time: number
+          id?: string
+          score: number
+          user_id: string
+        }
+        Update: {
+          challenge_id?: string
+          completed_at?: string | null
+          completion_time?: number
+          id?: string
+          score?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "daily_challenge_completions_challenge_id_fkey"
+            columns: ["challenge_id"]
+            isOneToOne: false
+            referencedRelation: "daily_challenges"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      daily_challenges: {
+        Row: {
+          created_at: string | null
+          date: string
+          difficulty: string
+          id: string
+          puzzle: Json
+          solution: Json
+        }
+        Insert: {
+          created_at?: string | null
+          date: string
+          difficulty: string
+          id?: string
+          puzzle: Json
+          solution: Json
+        }
+        Update: {
+          created_at?: string | null
+          date?: string
+          difficulty?: string
+          id?: string
+          puzzle?: Json
+          solution?: Json
+        }
+        Relationships: []
+      }
+      game_statistics: {
+        Row: {
+          best_time: number | null
+          created_at: string | null
+          difficulty: string
+          games_completed: number | null
+          games_played: number | null
+          id: string
+          total_score: number | null
+          total_time: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          best_time?: number | null
+          created_at?: string | null
+          difficulty: string
+          games_completed?: number | null
+          games_played?: number | null
+          id?: string
+          total_score?: number | null
+          total_time?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          best_time?: number | null
+          created_at?: string | null
+          difficulty?: string
+          games_completed?: number | null
+          games_played?: number | null
+          id?: string
+          total_score?: number | null
+          total_time?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       leaderboard: {
         Row: {
           best_time: number | null

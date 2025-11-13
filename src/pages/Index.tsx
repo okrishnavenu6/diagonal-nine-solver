@@ -9,8 +9,10 @@ import { Auth } from "@/components/Auth";
 import { Leaderboard } from "@/components/Leaderboard";
 import { Achievements } from "@/components/Achievements";
 import { VolumeControl } from "@/components/VolumeControl";
+import { DailyChallenge } from "@/components/DailyChallenge";
+import { Statistics } from "@/components/Statistics";
 import { Button } from "@/components/ui/button";
-import { Moon, Sun, Sparkles, Trophy, Award, LogIn, LogOut } from "lucide-react";
+import { Moon, Sun, Sparkles, Trophy, Award, LogIn, LogOut, Calendar, BarChart } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useSoundEffects } from "@/hooks/useSoundEffects";
 import { supabase } from "@/integrations/supabase/client";
@@ -58,7 +60,11 @@ const Index = () => {
   const [showAuth, setShowAuth] = useState(false);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [showAchievements, setShowAchievements] = useState(false);
+  const [showDailyChallenge, setShowDailyChallenge] = useState(false);
+  const [showStatistics, setShowStatistics] = useState(false);
   const [user, setUser] = useState<any>(null);
+  const [isDailyChallenge, setIsDailyChallenge] = useState(false);
+  const [currentChallengeId, setCurrentChallengeId] = useState<string | null>(null);
   const { toast } = useToast();
   const { theme, setTheme } = useTheme();
   const { playSound, volume, setVolume, isMuted, toggleMute } = useSoundEffects();
@@ -96,6 +102,22 @@ const Index = () => {
   useEffect(() => {
     initializeGame(difficulty);
   }, [difficulty, initializeGame]);
+
+  // Keyboard shortcut for pencil mode (P key)
+  useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      if (e.key === 'p' || e.key === 'P') {
+        if (!e.target || (e.target as HTMLElement).tagName !== 'INPUT') {
+          e.preventDefault();
+          setIsPencilMode(prev => !prev);
+          playSound('click');
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, [playSound]);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
@@ -138,7 +160,27 @@ const Index = () => {
     setCurrentMoveIndex(newHistory.length - 1);
   };
 
-  const handleNumberInput = (num: number) => {
+  const handleStartDailyChallenge = (puzzle: SudokuBoard, solution: number[][], challengeId: string) => {
+    setBoard(puzzle);
+    setSolution(solution);
+    setIsDailyChallenge(true);
+    setCurrentChallengeId(challengeId);
+    setSelectedCell(null);
+    setMoveHistory([]);
+    setCurrentMoveIndex(-1);
+    setTime(0);
+    setScore(0);
+    setLives(4); // Daily challenges have 4 lives
+    setMaxLives(4);
+    setMessage("Daily Challenge! Complete this unique puzzle for special rewards.");
+    setMessageType("info");
+    setIsGameWon(false);
+    setShowConfetti(false);
+    setShowCompletionDialog(false);
+    setIsTimerRunning(true);
+  };
+
+  const handleNumberInput = async (num: number) => {
     if (!selectedCell) {
       setMessage("Please select a cell first!");
       setMessageType("info");
@@ -271,9 +313,29 @@ const Index = () => {
         setShowCompletionDialog(true);
         playSound('victory');
         
-        // Update leaderboard if logged in
+        // Update statistics and leaderboard if logged in
         if (user) {
-          updateLeaderboard();
+          const finalScore = score + 10;
+          await updateStatistics(time, finalScore, true);
+          await updateLeaderboard(time, finalScore);
+
+          // Handle daily challenge completion
+          if (isDailyChallenge && currentChallengeId) {
+            try {
+              await supabase.from('daily_challenge_completions').insert({
+                user_id: user.id,
+                challenge_id: currentChallengeId,
+                completion_time: time,
+                score: finalScore,
+              });
+              toast({
+                title: "Daily Challenge Completed!",
+                description: "You've earned bonus rewards! 🎉",
+              });
+            } catch (error) {
+              console.error('Error saving daily challenge completion:', error);
+            }
+          }
         }
         
         setTimeout(() => setShowConfetti(false), 5000);
@@ -281,7 +343,49 @@ const Index = () => {
     }
   };
 
-  const updateLeaderboard = async () => {
+  const updateStatistics = async (completionTime: number, finalScore: number, completed: boolean) => {
+    if (!user) return;
+
+    try {
+      const { data: existingStats } = await supabase
+        .from('game_statistics')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('difficulty', difficulty)
+        .maybeSingle();
+
+      if (existingStats) {
+        const newBestTime = existingStats.best_time 
+          ? Math.min(existingStats.best_time, completionTime)
+          : completionTime;
+
+        await supabase
+          .from('game_statistics')
+          .update({
+            games_played: existingStats.games_played + 1,
+            games_completed: completed ? existingStats.games_completed + 1 : existingStats.games_completed,
+            total_time: existingStats.total_time + completionTime,
+            best_time: completed ? newBestTime : existingStats.best_time,
+            total_score: existingStats.total_score + finalScore,
+          })
+          .eq('id', existingStats.id);
+      } else {
+        await supabase.from('game_statistics').insert({
+          user_id: user.id,
+          difficulty,
+          games_played: 1,
+          games_completed: completed ? 1 : 0,
+          total_time: completionTime,
+          best_time: completed ? completionTime : null,
+          total_score: finalScore,
+        });
+      }
+    } catch (error) {
+      console.error('Error updating statistics:', error);
+    }
+  };
+
+  const updateLeaderboard = async (completionTime: number, finalScore: number) => {
     if (!user) return;
 
     try {
@@ -290,15 +394,15 @@ const Index = () => {
         .select('*')
         .eq('user_id', user.id)
         .eq('difficulty', difficulty)
-        .single();
+        .maybeSingle();
 
       if (existingEntry) {
         await supabase
           .from('leaderboard')
           .update({
-            score: existingEntry.score + score,
+            score: existingEntry.score + finalScore,
             games_completed: existingEntry.games_completed + 1,
-            best_time: existingEntry.best_time ? Math.min(existingEntry.best_time, time) : time
+            best_time: existingEntry.best_time ? Math.min(existingEntry.best_time, completionTime) : completionTime
           })
           .eq('id', existingEntry.id);
       } else {
@@ -306,9 +410,9 @@ const Index = () => {
           .from('leaderboard')
           .insert({
             user_id: user.id,
-            score,
+            score: finalScore,
             games_completed: 1,
-            best_time: time,
+            best_time: completionTime,
             difficulty
           });
       }
@@ -416,13 +520,39 @@ const Index = () => {
     setMessageType("info");
   };
 
-  const handleValidate = () => {
+  const handleValidate = async () => {
     if (isPuzzleComplete(board)) {
       setMessage("✅ Perfect! All cells are correctly filled!");
       setMessageType("success");
       setIsGameWon(true);
       setShowConfetti(true);
       setIsTimerRunning(false);
+      
+      const finalScore = score;
+      playSound('victory');
+      
+      // Update statistics and leaderboard
+      await updateStatistics(time, finalScore, true);
+      await updateLeaderboard(time, finalScore);
+
+      // Handle daily challenge completion
+      if (isDailyChallenge && currentChallengeId && user) {
+        try {
+          await supabase.from('daily_challenge_completions').insert({
+            user_id: user.id,
+            challenge_id: currentChallengeId,
+            completion_time: time,
+            score: finalScore,
+          });
+          toast({
+            title: "Daily Challenge Completed!",
+            description: "You've earned bonus rewards! 🎉",
+          });
+        } catch (error) {
+          console.error('Error saving daily challenge completion:', error);
+        }
+      }
+
       setShowCompletionDialog(true);
       setTimeout(() => setShowConfetti(false), 5000);
     } else {
@@ -481,22 +611,32 @@ const Index = () => {
     return counts;
   };
 
+  // Keyboard shortcuts
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
+      // Pencil mode toggle (P key) - works globally
+      if (e.key === 'p' || e.key === 'P') {
+        if (!e.target || (e.target as HTMLElement).tagName !== 'INPUT') {
+          e.preventDefault();
+          setIsPencilMode(prev => !prev);
+          playSound('click');
+        }
+        return;
+      }
+
+      // Cell-specific shortcuts
       if (!selectedCell) return;
 
       if (e.key >= "1" && e.key <= "9") {
         handleNumberInput(parseInt(e.key));
       } else if (e.key === "Backspace" || e.key === "Delete" || e.key === "0") {
         handleClear();
-      } else if (e.key === "p" || e.key === "P") {
-        setIsPencilMode(!isPencilMode);
       }
     };
 
     window.addEventListener("keydown", handleKeyPress);
     return () => window.removeEventListener("keydown", handleKeyPress);
-  }, [selectedCell, isPencilMode, board, score]);
+  }, [selectedCell, isPencilMode, board, score, playSound]);
 
   return (
     <div className="min-h-screen p-2 sm:p-4 md:p-6 lg:p-8 relative overflow-hidden">
@@ -556,6 +696,24 @@ const Index = () => {
         <Button
           variant="outline"
           size="icon"
+          onClick={() => setShowDailyChallenge(true)}
+          className="liquid-glass transform-3d transform-3d-hover"
+          title="Daily Challenge"
+        >
+          <Calendar className="h-4 w-4" />
+        </Button>
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={() => setShowStatistics(true)}
+          className="liquid-glass transform-3d transform-3d-hover"
+          title="Statistics"
+        >
+          <BarChart className="h-4 w-4" />
+        </Button>
+        <Button
+          variant="outline"
+          size="icon"
           onClick={() => setShowLeaderboard(true)}
           className="liquid-glass transform-3d transform-3d-hover"
         >
@@ -608,6 +766,17 @@ const Index = () => {
         onClose={() => setShowAchievements(false)}
         currentScore={score}
         gamesCompleted={0}
+      />
+      <DailyChallenge 
+        open={showDailyChallenge} 
+        onOpenChange={setShowDailyChallenge} 
+        onStartChallenge={handleStartDailyChallenge}
+        user={user}
+      />
+      <Statistics 
+        open={showStatistics} 
+        onOpenChange={setShowStatistics} 
+        user={user}
       />
       
       <div className="max-w-[1800px] mx-auto space-y-4 md:space-y-6 lg:space-y-8 relative z-10">

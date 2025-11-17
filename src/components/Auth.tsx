@@ -5,6 +5,13 @@ import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
+import { z } from 'zod';
+
+const authSchema = z.object({
+  email: z.string().trim().email({ message: "Invalid email address" }).max(255, { message: "Email must be less than 255 characters" }),
+  password: z.string().min(6, { message: "Password must be at least 6 characters" }).max(72, { message: "Password must be less than 72 characters" }),
+  username: z.string().trim().min(3, { message: "Username must be at least 3 characters" }).max(30, { message: "Username must be less than 30 characters" }).regex(/^[a-zA-Z0-9_-]+$/, { message: "Username can only contain letters, numbers, underscores, and hyphens" }).optional()
+});
 
 interface AuthProps {
   open: boolean;
@@ -24,25 +31,40 @@ export const Auth = ({ open, onClose }: AuthProps) => {
     setLoading(true);
 
     try {
+      // Validate input
+      const validationData = isLogin 
+        ? { email, password }
+        : { email, password, username };
+      
+      const result = authSchema.safeParse(validationData);
+      
+      if (!result.success) {
+        const firstError = result.error.errors[0];
+        throw new Error(firstError.message);
+      }
+
       if (isLogin) {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        const { error } = await supabase.auth.signInWithPassword({ 
+          email: result.data.email, 
+          password: result.data.password 
+        });
         if (error) throw error;
         toast({ title: 'Welcome back!', description: 'Successfully logged in' });
         onClose();
       } else {
         const { data, error } = await supabase.auth.signUp({
-          email,
-          password,
+          email: result.data.email,
+          password: result.data.password,
           options: {
-            data: { username }
+            data: { username: result.data.username }
           }
         });
         if (error) throw error;
         
-        if (data.user) {
+        if (data.user && result.data.username) {
           await supabase.from('profiles').insert({
             id: data.user.id,
-            username
+            username: result.data.username
           });
         }
         

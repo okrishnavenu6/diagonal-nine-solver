@@ -6,6 +6,7 @@ import { Label } from './ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
 import { z } from 'zod';
+import { PasswordStrengthIndicator } from './PasswordStrengthIndicator';
 
 const authSchema = z.object({
   email: z.string().trim().email({ message: "Invalid email address" }).max(255, { message: "Email must be less than 255 characters" }),
@@ -26,6 +27,41 @@ export const Auth = ({ open, onClose }: AuthProps) => {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
+  const checkRateLimit = async (identifier: string): Promise<boolean> => {
+    try {
+      const fifteenMinutesAgo = new Date(Date.now() - 15 * 60 * 1000).toISOString();
+      
+      const { data, error } = await supabase
+        .from('auth_attempts')
+        .select('*')
+        .eq('identifier', identifier)
+        .gte('attempted_at', fifteenMinutesAgo);
+
+      if (error) {
+        console.error('Rate limit check error:', error);
+        return true; // Allow attempt if check fails
+      }
+
+      // Allow max 5 attempts per 15 minutes
+      return (data?.length || 0) < 5;
+    } catch (error) {
+      console.error('Rate limit check error:', error);
+      return true; // Allow attempt if check fails
+    }
+  };
+
+  const recordAuthAttempt = async (identifier: string, attemptType: string, success: boolean) => {
+    try {
+      await supabase.from('auth_attempts').insert({
+        identifier,
+        attempt_type: attemptType,
+        success
+      });
+    } catch (error) {
+      console.error('Failed to record auth attempt:', error);
+    }
+  };
+
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -43,11 +79,20 @@ export const Auth = ({ open, onClose }: AuthProps) => {
         throw new Error(firstError.message);
       }
 
+      // Check rate limit
+      const canProceed = await checkRateLimit(result.data.email);
+      if (!canProceed) {
+        throw new Error('Too many attempts. Please try again in 15 minutes.');
+      }
+
       if (isLogin) {
         const { error } = await supabase.auth.signInWithPassword({ 
           email: result.data.email, 
           password: result.data.password 
         });
+        
+        await recordAuthAttempt(result.data.email, 'login', !error);
+        
         if (error) throw error;
         toast({ title: 'Welcome back!', description: 'Successfully logged in' });
         onClose();
@@ -59,6 +104,9 @@ export const Auth = ({ open, onClose }: AuthProps) => {
             data: { username: result.data.username }
           }
         });
+        
+        await recordAuthAttempt(result.data.email, 'signup', !error);
+        
         if (error) throw error;
         
         if (data.user && result.data.username) {
@@ -126,6 +174,7 @@ export const Auth = ({ open, onClose }: AuthProps) => {
               required
               minLength={6}
             />
+            {!isLogin && <PasswordStrengthIndicator password={password} />}
           </div>
           <Button
             type="submit"

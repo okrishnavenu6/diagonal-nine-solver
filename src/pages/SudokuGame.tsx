@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { Link } from "react-router-dom";
 import { SudokuGrid } from "@/components/SudokuGrid";
 import { NumberPad } from "@/components/NumberPad";
 import { GameStatus } from "@/components/GameStatus";
@@ -12,7 +13,7 @@ import { VolumeControl } from "@/components/VolumeControl";
 import { DailyChallenge } from "@/components/DailyChallenge";
 import { Statistics } from "@/components/Statistics";
 import { Button } from "@/components/ui/button";
-import { Moon, Sun, Sparkles, Trophy, Award, LogIn, LogOut, Calendar, BarChart } from "lucide-react";
+import { Moon, Sun, Sparkles, Trophy, Award, LogIn, LogOut, Calendar, BarChart, ArrowLeft } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useSoundEffects } from "@/hooks/useSoundEffects";
 import { supabase } from "@/integrations/supabase/client";
@@ -806,6 +807,16 @@ const Index = () => {
       <div className="absolute bottom-0 right-1/4 w-[400px] md:w-[600px] h-[400px] md:h-[600px] bg-accent/20 rounded-full blur-[80px] md:blur-[120px] pointer-events-none animate-float-delayed" />
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] md:w-[800px] h-[600px] md:h-[800px] bg-primary/5 rounded-full blur-[100px] md:blur-[150px] pointer-events-none animate-pulse-slow" />
       
+      {/* Back button */}
+      <div className="fixed top-2 left-2 sm:top-4 sm:left-4 z-50">
+        <Link to="/">
+          <Button variant="outline" className="liquid-glass transform-3d transform-3d-hover">
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to Games
+          </Button>
+        </Link>
+      </div>
+
       {/* Top controls */}
       <div className="fixed top-2 right-2 sm:top-4 sm:right-4 z-50 flex gap-2">
         <VolumeControl

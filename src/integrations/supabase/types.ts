@@ -130,12 +130,52 @@ export type Database = {
         }
         Relationships: []
       }
+      game_sessions: {
+        Row: {
+          completed_at: string | null
+          created_at: string | null
+          duration: number | null
+          game_state: Json | null
+          game_type: string
+          id: string
+          is_completed: boolean | null
+          score: number | null
+          started_at: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string | null
+          duration?: number | null
+          game_state?: Json | null
+          game_type: string
+          id?: string
+          is_completed?: boolean | null
+          score?: number | null
+          started_at?: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string | null
+          duration?: number | null
+          game_state?: Json | null
+          game_type?: string
+          id?: string
+          is_completed?: boolean | null
+          score?: number | null
+          started_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       game_statistics: {
         Row: {
           best_time: number | null
           created_at: string | null
           current_streak: number | null
           difficulty: string
+          game_type: string
           games_completed: number | null
           games_played: number | null
           id: string
@@ -151,6 +191,7 @@ export type Database = {
           created_at?: string | null
           current_streak?: number | null
           difficulty: string
+          game_type?: string
           games_completed?: number | null
           games_played?: number | null
           id?: string
@@ -166,6 +207,7 @@ export type Database = {
           created_at?: string | null
           current_streak?: number | null
           difficulty?: string
+          game_type?: string
           games_completed?: number | null
           games_played?: number | null
           id?: string
@@ -183,6 +225,7 @@ export type Database = {
           best_time: number | null
           created_at: string | null
           difficulty: string
+          game_type: string
           games_completed: number
           id: string
           score: number
@@ -193,6 +236,7 @@ export type Database = {
           best_time?: number | null
           created_at?: string | null
           difficulty: string
+          game_type?: string
           games_completed?: number
           id?: string
           score?: number
@@ -203,6 +247,7 @@ export type Database = {
           best_time?: number | null
           created_at?: string | null
           difficulty?: string
+          game_type?: string
           games_completed?: number
           id?: string
           score?: number

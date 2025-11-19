@@ -1,17 +1,19 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ArrowLeft, RotateCcw } from "lucide-react";
+import { ArrowLeft, RotateCcw, Info } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useTheme } from "next-themes";
 import { Moon, Sun } from "lucide-react";
-import { initializeChessBoard, makeMove, ChessPiece, ChessGameState } from "@/utils/chessGame";
+import { initializeChessBoard, makeMove, getValidMoves, ChessPiece, ChessGameState } from "@/utils/chessGame";
+import { useGameSession } from "@/hooks/useGameSession";
 
 const ChessGame = () => {
   const { theme, setTheme } = useTheme();
   const [gameState, setGameState] = useState<ChessGameState>(initializeChessBoard());
   const [selectedSquare, setSelectedSquare] = useState<[number, number] | null>(null);
   const [validMoves, setValidMoves] = useState<[number, number][]>([]);
+  const { startSession, updateSession } = useGameSession("chess");
 
   const handleSquareClick = (row: number, col: number) => {
     const piece = gameState.board[row][col];
@@ -23,27 +25,30 @@ const ChessGame = () => {
       if (isValidMove) {
         const newState = makeMove(gameState, fromRow, fromCol, row, col);
         setGameState(newState);
+        updateSession(newState);
         setSelectedSquare(null);
         setValidMoves([]);
       } else if (piece && piece.color === gameState.currentPlayer) {
         setSelectedSquare([row, col]);
-        // In a real implementation, calculate valid moves here
-        setValidMoves([]);
+        const moves = getValidMoves(gameState.board, row, col);
+        setValidMoves(moves);
       } else {
         setSelectedSquare(null);
         setValidMoves([]);
       }
     } else if (piece && piece.color === gameState.currentPlayer) {
       setSelectedSquare([row, col]);
-      // In a real implementation, calculate valid moves here
-      setValidMoves([]);
+      const moves = getValidMoves(gameState.board, row, col);
+      setValidMoves(moves);
     }
   };
 
   const resetGame = () => {
-    setGameState(initializeChessBoard());
+    const newState = initializeChessBoard();
+    setGameState(newState);
     setSelectedSquare(null);
     setValidMoves([]);
+    startSession(newState);
   };
 
   const getPieceSymbol = (piece: ChessPiece | null): string => {
@@ -137,14 +142,50 @@ const ChessGame = () => {
             </Card>
 
             <Card className="p-6">
-              <h3 className="text-lg font-bold mb-2">How to Play</h3>
-              <ul className="text-sm text-muted-foreground space-y-2">
-                <li>• Click to select a piece</li>
-                <li>• Click again to move</li>
-                <li>• Checkmate to win</li>
-                <li>• Classic chess rules</li>
-              </ul>
+              <h3 className="text-lg font-bold mb-3 flex items-center gap-2">
+                <Info className="w-5 h-5" />
+                Chess Rules
+              </h3>
+              <div className="text-sm text-muted-foreground space-y-3">
+                <div>
+                  <p className="font-semibold text-foreground mb-1">Piece Movement:</p>
+                  <ul className="space-y-1 ml-2">
+                    <li>♔/♚ King: One square any direction</li>
+                    <li>♕/♛ Queen: Any direction, any distance</li>
+                    <li>♖/♜ Rook: Horizontal/vertical only</li>
+                    <li>♗/♝ Bishop: Diagonal only</li>
+                    <li>♘/♞ Knight: L-shape (2+1 squares)</li>
+                    <li>♙/♟ Pawn: Forward 1 (or 2 from start)</li>
+                  </ul>
+                </div>
+                <div>
+                  <p className="font-semibold text-foreground mb-1">Objective:</p>
+                  <p>Checkmate opponent's king</p>
+                </div>
+                <div>
+                  <p className="font-semibold text-foreground mb-1">How to Play:</p>
+                  <ul className="space-y-1 ml-2">
+                    <li>1. Click a piece to select it</li>
+                    <li>2. Valid moves highlight in green</li>
+                    <li>3. Click a highlighted square to move</li>
+                    <li>4. Capture by moving to enemy square</li>
+                  </ul>
+                </div>
+              </div>
             </Card>
+            
+            {gameState.moveHistory.length > 0 && (
+              <Card className="p-6">
+                <h3 className="text-lg font-bold mb-2">Move History</h3>
+                <div className="text-sm text-muted-foreground space-y-1 max-h-40 overflow-y-auto">
+                  {gameState.moveHistory.slice(-10).map((move, i) => (
+                    <div key={i}>
+                      {gameState.moveHistory.length - 10 + i + 1}. {move}
+                    </div>
+                  ))}
+                </div>
+              </Card>
+            )}
           </div>
         </div>
       </div>

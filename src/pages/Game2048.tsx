@@ -1,21 +1,28 @@
 import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ArrowLeft, RotateCcw } from "lucide-react";
+import { ArrowLeft, RotateCcw, Info } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useTheme } from "next-themes";
 import { Moon, Sun } from "lucide-react";
 import { initialize2048, move2048, Game2048State } from "@/utils/game2048";
+import { useGameSession } from "@/hooks/useGameSession";
 
 const Game2048 = () => {
   const { theme, setTheme } = useTheme();
   const [gameState, setGameState] = useState<Game2048State>(initialize2048());
+  const { startSession, updateSession, completeSession } = useGameSession("2048");
 
   const handleMove = useCallback((direction: "up" | "down" | "left" | "right") => {
     if (gameState.gameOver) return;
     const newState = move2048(gameState, direction);
     setGameState(newState);
-  }, [gameState]);
+    updateSession(newState, newState.score);
+    
+    if (newState.gameOver) {
+      completeSession(newState.score, 0);
+    }
+  }, [gameState, updateSession, completeSession]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -44,7 +51,9 @@ const Game2048 = () => {
   }, [handleMove]);
 
   const resetGame = () => {
-    setGameState(initialize2048());
+    const newState = initialize2048();
+    setGameState(newState);
+    startSession(newState);
   };
 
   const getTileColor = (value: number): string => {
@@ -170,13 +179,34 @@ const Game2048 = () => {
             </Card>
 
             <Card className="p-6">
-              <h3 className="text-lg font-bold mb-2">How to Play</h3>
-              <ul className="text-sm text-muted-foreground space-y-2">
-                <li>• Use arrow keys or buttons</li>
-                <li>• Combine tiles with same numbers</li>
-                <li>• Reach 2048 to win!</li>
-                <li>• Keep playing for higher scores</li>
-              </ul>
+              <h3 className="text-lg font-bold mb-3 flex items-center gap-2">
+                <Info className="w-5 h-5" />
+                2048 Rules
+              </h3>
+              <div className="text-sm text-muted-foreground space-y-2">
+                <p className="font-semibold text-foreground">Objective:</p>
+                <p className="ml-2">Combine tiles to create a 2048 tile</p>
+                
+                <p className="font-semibold text-foreground mt-3">How to Play:</p>
+                <ul className="space-y-1 ml-2">
+                  <li>1. Use arrow keys or buttons to move</li>
+                  <li>2. All tiles slide in the chosen direction</li>
+                  <li>3. Tiles with same number merge into one</li>
+                  <li>4. New tile (2 or 4) appears after each move</li>
+                  <li>5. Keep going for higher scores!</li>
+                </ul>
+                
+                <p className="font-semibold text-foreground mt-3">Strategy:</p>
+                <ul className="space-y-1 ml-2">
+                  <li>• Keep highest tile in a corner</li>
+                  <li>• Build tiles in descending order</li>
+                  <li>• Don't use all 4 directions randomly</li>
+                  <li>• Plan ahead for multiple moves</li>
+                </ul>
+                
+                <p className="font-semibold text-foreground mt-3">Game Over:</p>
+                <p className="ml-2">When no more moves are possible</p>
+              </div>
             </Card>
           </div>
         </div>

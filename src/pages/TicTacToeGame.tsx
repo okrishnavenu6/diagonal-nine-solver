@@ -1,17 +1,19 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ArrowLeft, RotateCcw, X as XIcon, Circle } from "lucide-react";
+import { ArrowLeft, RotateCcw, X as XIcon, Circle, Info } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useTheme } from "next-themes";
 import { Moon, Sun } from "lucide-react";
 import { checkWinner, TicTacToeBoard } from "@/utils/ticTacToeGame";
+import { useGameSession } from "@/hooks/useGameSession";
 
 const TicTacToeGame = () => {
   const { theme, setTheme } = useTheme();
   const [board, setBoard] = useState<TicTacToeBoard>(Array(9).fill(null));
   const [isXNext, setIsXNext] = useState(true);
   const [score, setScore] = useState({ X: 0, O: 0, draws: 0 });
+  const { startSession, updateSession, completeSession } = useGameSession("tictactoe");
 
   const winner = checkWinner(board);
   const isDraw = !winner && board.every(cell => cell !== null);
@@ -23,11 +25,16 @@ const TicTacToeGame = () => {
     newBoard[index] = isXNext ? "X" : "O";
     setBoard(newBoard);
     setIsXNext(!isXNext);
+    updateSession({ board: newBoard, isXNext: !isXNext });
 
     const newWinner = checkWinner(newBoard);
     if (newWinner) {
       setTimeout(() => {
-        setScore(prev => ({ ...prev, [newWinner]: prev[newWinner] + 1 }));
+        setScore(prev => {
+          const newScore = { ...prev, [newWinner]: prev[newWinner] + 1 };
+          completeSession(newScore[newWinner] * 100, 0);
+          return newScore;
+        });
       }, 500);
     } else if (newBoard.every(cell => cell !== null)) {
       setTimeout(() => {
@@ -37,8 +44,10 @@ const TicTacToeGame = () => {
   };
 
   const resetGame = () => {
-    setBoard(Array(9).fill(null));
+    const newBoard = Array(9).fill(null);
+    setBoard(newBoard);
     setIsXNext(true);
+    startSession({ board: newBoard, isXNext: true });
   };
 
   const resetScore = () => {
@@ -147,13 +156,30 @@ const TicTacToeGame = () => {
             </Card>
 
             <Card className="p-6">
-              <h3 className="text-lg font-bold mb-2">How to Play</h3>
-              <ul className="text-sm text-muted-foreground space-y-2">
-                <li>• Click any empty square</li>
-                <li>• Get 3 in a row to win</li>
-                <li>• Horizontal, vertical, or diagonal</li>
-                <li>• Take turns with your opponent</li>
-              </ul>
+              <h3 className="text-lg font-bold mb-3 flex items-center gap-2">
+                <Info className="w-5 h-5" />
+                Tic-Tac-Toe Rules
+              </h3>
+              <div className="text-sm text-muted-foreground space-y-2">
+                <p className="font-semibold text-foreground">Objective:</p>
+                <p className="ml-2">Get 3 marks in a row to win</p>
+                
+                <p className="font-semibold text-foreground mt-3">How to Play:</p>
+                <ul className="space-y-1 ml-2">
+                  <li>1. Players take turns (X goes first)</li>
+                  <li>2. Click any empty square to place your mark</li>
+                  <li>3. Get 3 in a row horizontally, vertically, or diagonally</li>
+                  <li>4. If all 9 squares fill with no winner, it's a draw</li>
+                </ul>
+                
+                <p className="font-semibold text-foreground mt-3">Strategy:</p>
+                <ul className="space-y-1 ml-2">
+                  <li>• Control the center square</li>
+                  <li>• Watch for opponent's threats</li>
+                  <li>• Create multiple winning paths</li>
+                  <li>• Block opponent's winning moves</li>
+                </ul>
+              </div>
             </Card>
           </div>
         </div>

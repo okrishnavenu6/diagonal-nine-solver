@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ArrowLeft, RotateCcw, Dices } from "lucide-react";
+import { ArrowLeft, RotateCcw, Dices, Trophy, Info } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useTheme } from "next-themes";
 import { Moon, Sun } from "lucide-react";
-import { initializeLudoGame, rollDice, movePiece, LudoGameState } from "@/utils/ludoGame";
+import { initializeLudoGame, rollDice, movePiece, getAvailableMoves, LudoGameState } from "@/utils/ludoGame";
+import { useGameSession } from "@/hooks/useGameSession";
+import { useToast } from "@/hooks/use-toast";
 
 const LudoGame = () => {
   const { theme, setTheme } = useTheme();
@@ -13,9 +15,12 @@ const LudoGame = () => {
   const [diceValue, setDiceValue] = useState<number>(0);
   const [isRolling, setIsRolling] = useState(false);
   const [selectedPiece, setSelectedPiece] = useState<number | null>(null);
+  const [availableMoves, setAvailableMoves] = useState<number[]>([]);
+  const { startSession, updateSession, completeSession } = useGameSession("ludo");
+  const { toast } = useToast();
 
   const handleRollDice = () => {
-    if (isRolling) return;
+    if (isRolling || diceValue > 0) return;
     setIsRolling(true);
     setSelectedPiece(null);
     
@@ -26,11 +31,27 @@ const LudoGame = () => {
       setIsRolling(false);
       const newState = { ...gameState, lastDiceRoll: result };
       setGameState(newState);
+      
+      // Check available moves
+      const moves = getAvailableMoves(newState, newState.currentPlayer);
+      setAvailableMoves(moves);
+      
+      if (moves.length === 0) {
+        toast({
+          title: "No valid moves",
+          description: `Player ${newState.currentPlayer + 1} has no valid moves. Turn passes.`,
+        });
+        setTimeout(() => {
+          const nextState = { ...newState, currentPlayer: (newState.currentPlayer + 1) % 4, lastDiceRoll: 0 };
+          setGameState(nextState);
+          setDiceValue(0);
+        }, 1500);
+      }
     }, 600);
   };
 
   const handlePieceClick = (pieceIndex: number) => {
-    if (diceValue === 0 || selectedPiece === pieceIndex) {
+    if (diceValue === 0 || selectedPiece === pieceIndex || !availableMoves.includes(pieceIndex)) {
       setSelectedPiece(null);
       return;
     }
@@ -43,14 +64,30 @@ const LudoGame = () => {
     
     const newState = movePiece(gameState, gameState.currentPlayer, selectedPiece, diceValue);
     setGameState(newState);
-    setDiceValue(0);
+    updateSession(newState, newState.moveCount);
+    
+    if (newState.winner !== null) {
+      completeSession(newState.moveCount * 100, Math.floor(newState.moveCount * 30));
+      toast({
+        title: "🎉 Winner!",
+        description: `Player ${newState.winner + 1} (${newState.players[newState.winner].name}) wins!`,
+      });
+    }
+    
+    if (!newState.canRollAgain) {
+      setDiceValue(0);
+    }
     setSelectedPiece(null);
+    setAvailableMoves([]);
   };
 
   const resetGame = () => {
-    setGameState(initializeLudoGame());
+    const newState = initializeLudoGame();
+    setGameState(newState);
     setDiceValue(0);
     setSelectedPiece(null);
+    setAvailableMoves([]);
+    startSession(newState);
   };
 
   const playerColors = ["bg-destructive", "bg-success", "bg-warning", "bg-primary"];
@@ -188,14 +225,47 @@ const LudoGame = () => {
             )}
 
             <Card className="p-6">
-              <h3 className="text-lg font-bold mb-2">How to Play</h3>
-              <ul className="text-sm text-muted-foreground space-y-2">
-                <li>• Roll the dice to move</li>
-                <li>• Select a piece to move</li>
-                <li>• Get all pieces home to win</li>
-                <li>• Roll 6 to start a piece</li>
-              </ul>
+              <h3 className="text-lg font-bold mb-3 flex items-center gap-2">
+                <Info className="w-5 h-5" />
+                Ludo Rules
+              </h3>
+              <div className="text-sm text-muted-foreground space-y-2">
+                <p className="font-semibold text-foreground">Objective:</p>
+                <p className="ml-2">Move all 4 pieces from home to finish</p>
+                
+                <p className="font-semibold text-foreground mt-3">How to Play:</p>
+                <ul className="space-y-1 ml-2">
+                  <li>1. Roll dice to get a number</li>
+                  <li>2. Roll 6 to start a piece from home</li>
+                  <li>3. Select a piece to move it</li>
+                  <li>4. Land on opponent to send them home</li>
+                  <li>5. Roll again after rolling 6 or capturing</li>
+                  <li>6. First to get all pieces home wins!</li>
+                </ul>
+                
+                <p className="font-semibold text-foreground mt-3">Tips:</p>
+                <ul className="space-y-1 ml-2">
+                  <li>• Keep pieces spread out</li>
+                  <li>• Try to capture opponents</li>
+                  <li>• Safe zones protect your pieces</li>
+                </ul>
+              </div>
             </Card>
+            
+            {gameState.winner !== null && (
+              <Card className="p-6 bg-primary/10 border-primary">
+                <div className="text-center">
+                  <Trophy className="w-12 h-12 mx-auto mb-2 text-primary" />
+                  <h3 className="text-xl font-bold">Winner!</h3>
+                  <p className="text-lg mt-2">
+                    Player {gameState.winner + 1}
+                  </p>
+                  <p className="text-muted-foreground">
+                    {gameState.players[gameState.winner].name}
+                  </p>
+                </div>
+              </Card>
+            )}
           </div>
         </div>
       </div>

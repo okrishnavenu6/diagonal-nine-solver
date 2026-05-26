@@ -6,10 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import HomePage from "./pages/HomePage";
 import SudokuGame from "./pages/SudokuGame";
-import LudoGame from "./pages/LudoGame";
-import ChessGame from "./pages/ChessGame";
 import TicTacToeGame from "./pages/TicTacToeGame";
-import Game2048 from "./pages/Game2048";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();

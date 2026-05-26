@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Grid3x3, Dices, Crown, X, Grid2x2 } from "lucide-react";
+import { Grid3x3, X } from "lucide-react";
 import { Moon, Sun, LogIn, LogOut, Trophy, Award } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useState, useEffect } from "react";

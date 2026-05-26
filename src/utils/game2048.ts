@@ -81,7 +81,7 @@ export const move2048 = (
 ): Game2048State => {
   let board = gameState.board.map(row => [...row]);
   let rotations = 0;
-  
+
   switch (direction) {
     case "right":
       rotations = 2;
@@ -93,38 +93,41 @@ export const move2048 = (
       rotations = 1;
       break;
   }
-  
+
   for (let i = 0; i < rotations; i++) {
     board = rotateBoard(board);
   }
-  
+
   const [movedBoard, scoreIncrease] = moveLeft(board);
-  
-  for (let i = 0; i < (4 - rotations) % 4; i++) {
-    board = rotateBoard(movedBoard);
+  board = movedBoard;
+
+  // Rotate back to original orientation
+  const restoreRotations = (4 - rotations) % 4;
+  for (let i = 0; i < restoreRotations; i++) {
+    board = rotateBoard(board);
   }
-  
+
   if (boardsEqual(gameState.board, board)) {
     return gameState;
   }
-  
+
   addRandomTile(board);
-  
+
   const newScore = gameState.score + scoreIncrease;
   const newBestScore = Math.max(newScore, gameState.bestScore);
-  
+
   if (newBestScore > gameState.bestScore) {
     localStorage.setItem("2048-best", newBestScore.toString());
   }
-  
+
   const hasEmptyCell = board.some(row => row.some(cell => cell === 0));
-  const hasValidMove = !hasEmptyCell && checkForValidMoves(board);
-  
+  const gameOver = !hasEmptyCell && !checkForValidMoves(board);
+
   return {
     board,
     score: newScore,
     bestScore: newBestScore,
-    gameOver: !hasEmptyCell && !hasValidMove
+    gameOver,
   };
 };
 

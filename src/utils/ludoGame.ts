@@ -1,5 +1,10 @@
+// Clean Ludo model.
+// Each piece has `steps`: 0 = at home base, 1..51 = on main track (relative to player's start),
+// 52..57 = home stretch squares, 57 = finished.
+// Board position (for capture checks) = (player.startOffset + steps - 1) mod 52, only when 1 <= steps <= 51.
+
 export interface LudoPiece {
-  position: number; // -1 = home, 0-51 = board path, 52-57 = home stretch, 58 = finished
+  steps: number; // 0 home, 1..51 main path, 52..57 home stretch, 57 = finished
   isHome: boolean;
   isFinished: boolean;
 }
@@ -8,8 +13,7 @@ export interface LudoPlayer {
   color: string;
   name: string;
   pieces: LudoPiece[];
-  startPosition: number;
-  homeStretchStart: number;
+  startOffset: number;
 }
 
 export interface LudoGameState {
@@ -21,54 +25,53 @@ export interface LudoGameState {
   winner: number | null;
 }
 
-const PLAYER_COLORS = ["#ef4444", "#22c55e", "#eab308", "#3b82f6"]; // red, green, yellow, blue
+const PLAYER_COLORS = ["#ef4444", "#22c55e", "#eab308", "#3b82f6"];
 const PLAYER_NAMES = ["Red", "Green", "Yellow", "Blue"];
-const START_POSITIONS = [0, 13, 26, 39]; // Starting positions on the main path
-const HOME_STRETCH_STARTS = [50, 11, 24, 37]; // Where each player enters their home stretch
+const START_OFFSETS = [0, 13, 26, 39];
 
-export const initializeLudoGame = (): LudoGameState => {
-  return {
-    players: PLAYER_COLORS.map((color, index) => ({
-      color,
-      name: PLAYER_NAMES[index],
-      startPosition: START_POSITIONS[index],
-      homeStretchStart: HOME_STRETCH_STARTS[index],
-      pieces: Array(4).fill(null).map(() => ({
-        position: -1,
-        isHome: true,
-        isFinished: false
-      }))
-    })),
-    currentPlayer: 0,
-    lastDiceRoll: 0,
-    canRollAgain: false,
-    moveCount: 0,
-    winner: null
-  };
+const FINISH_STEP = 57;
+
+export const initializeLudoGame = (): LudoGameState => ({
+  players: PLAYER_COLORS.map((color, index) => ({
+    color,
+    name: PLAYER_NAMES[index],
+    startOffset: START_OFFSETS[index],
+    pieces: Array(4)
+      .fill(null)
+      .map(() => ({ steps: 0, isHome: true, isFinished: false })),
+  })),
+  currentPlayer: 0,
+  lastDiceRoll: 0,
+  canRollAgain: false,
+  moveCount: 0,
+  winner: null,
+});
+
+export const rollDice = (): number => Math.floor(Math.random() * 6) + 1;
+
+const getBoardPos = (player: LudoPlayer, piece: LudoPiece): number | null => {
+  if (piece.isHome || piece.isFinished) return null;
+  if (piece.steps < 1 || piece.steps > 51) return null;
+  return (player.startOffset + piece.steps - 1) % 52;
 };
 
-export const rollDice = (): number => {
-  return Math.floor(Math.random() * 6) + 1;
-};
-
-export const canMovePiece = (
-  piece: LudoPiece,
-  diceRoll: number,
-  player: LudoPlayer
-): boolean => {
-  // Must roll 6 to leave home
-  if (piece.isHome && diceRoll !== 6) return false;
-  
-  // Can't move finished pieces
+export const canMovePiece = (piece: LudoPiece, diceRoll: number): boolean => {
   if (piece.isFinished) return false;
-  
-  // Can't move beyond finish
-  if (!piece.isHome && piece.position >= 52) {
-    const newPos = piece.position + diceRoll;
-    if (newPos > 57) return false;
-  }
-  
+  if (piece.isHome) return diceRoll === 6;
+  if (piece.steps + diceRoll > FINISH_STEP) return false;
   return true;
+};
+
+export const getAvailableMoves = (
+  gameState: LudoGameState,
+  playerIndex: number
+): number[] => {
+  const player = gameState.players[playerIndex];
+  const out: number[] = [];
+  player.pieces.forEach((p, i) => {
+    if (canMovePiece(p, gameState.lastDiceRoll)) out.push(i);
+  });
+  return out;
 };
 
 export const movePiece = (
@@ -77,98 +80,61 @@ export const movePiece = (
   pieceIndex: number,
   steps: number
 ): LudoGameState => {
-  const newState = JSON.parse(JSON.stringify(gameState));
+  const newState: LudoGameState = JSON.parse(JSON.stringify(gameState));
   const player = newState.players[playerIndex];
   const piece = player.pieces[pieceIndex];
-  
-  if (!canMovePiece(piece, steps, player)) {
-    return gameState;
-  }
-  
-  let canRollAgain = false;
-  
-  // Leaving home
-  if (piece.isHome && steps === 6) {
+
+  if (!canMovePiece(piece, steps)) return gameState;
+
+  let bonusTurn = false;
+
+  if (piece.isHome) {
     piece.isHome = false;
-    piece.position = player.startPosition;
-    canRollAgain = true;
-  } 
-  // Moving on board
-  else if (!piece.isHome && !piece.isFinished) {
-    let newPos = piece.position + steps;
-    
-    // Check if entering home stretch
-    if (piece.position < 52) {
-      // Normal board movement (0-51)
-      newPos = newPos % 52;
-      
-      // Check if passing through home stretch entrance
-      const distanceToHomeStretch = (player.homeStretchStart - piece.position + 52) % 52;
-      if (steps >= distanceToHomeStretch && steps <= distanceToHomeStretch) {
-        // Enter home stretch
-        newPos = 52 + (steps - distanceToHomeStretch);
-      }
-    } else {
-      // Already in home stretch (52-57)
-      if (newPos >= 58) {
-        // Can't overshoot finish
-        return gameState;
-      }
-      if (newPos === 57) {
-        piece.isFinished = true;
-        canRollAgain = true;
-      }
+    piece.steps = 1;
+    bonusTurn = true;
+  } else {
+    piece.steps += steps;
+    if (piece.steps === FINISH_STEP) {
+      piece.isFinished = true;
+      bonusTurn = true;
     }
-    
-    piece.position = newPos;
-    
-    // Check for capture (only on main board, not in home stretch)
-    if (piece.position < 52) {
-      newState.players.forEach((otherPlayer: LudoPlayer, otherPlayerIndex: number) => {
-        if (otherPlayerIndex !== playerIndex) {
-          otherPlayer.pieces.forEach((otherPiece: LudoPiece) => {
-            if (!otherPiece.isHome && !otherPiece.isFinished && 
-                otherPiece.position === piece.position && otherPiece.position < 52) {
-              // Send captured piece back home
-              otherPiece.position = -1;
-              otherPiece.isHome = true;
-              canRollAgain = true;
-            }
-          });
+  }
+
+  // Capture: if landed on main track on a non-safe square
+  const landingPos = getBoardPos(player, piece);
+  if (landingPos !== null) {
+    newState.players.forEach((other, oi) => {
+      if (oi === playerIndex) return;
+      other.pieces.forEach((op) => {
+        const opPos = getBoardPos(other, op);
+        if (opPos === landingPos) {
+          op.steps = 0;
+          op.isHome = true;
+          op.isFinished = false;
+          bonusTurn = true;
         }
       });
-    }
+    });
   }
-  
-  // Check for winner
-  const allFinished = player.pieces.every((p: LudoPiece) => p.isFinished);
-  if (allFinished) {
+
+  // Winner?
+  if (player.pieces.every((p) => p.isFinished)) {
     newState.winner = playerIndex;
   }
-  
-  // Update game state
-  newState.canRollAgain = canRollAgain || steps === 6;
+
+  newState.canRollAgain = bonusTurn || steps === 6;
   if (!newState.canRollAgain) {
     newState.currentPlayer = (playerIndex + 1) % 4;
   }
   newState.lastDiceRoll = 0;
   newState.moveCount++;
-  
+
   return newState;
 };
 
-export const getAvailableMoves = (
-  gameState: LudoGameState,
-  playerIndex: number
-): number[] => {
-  const player = gameState.players[playerIndex];
-  const availablePieces: number[] = [];
-  
-  player.pieces.forEach((piece, index) => {
-    if (canMovePiece(piece, gameState.lastDiceRoll, player)) {
-      availablePieces.push(index);
-    }
-  });
-  
-  return availablePieces;
+export const pieceStatusLabel = (piece: LudoPiece): string => {
+  if (piece.isFinished) return "🏁 Finished";
+  if (piece.isHome) return "🏠 Home";
+  if (piece.steps >= 52) return `Home stretch ${piece.steps - 51}/6`;
+  return `Square ${piece.steps}/51`;
 };

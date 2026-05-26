@@ -102,11 +102,11 @@ const HomePage = () => {
         <div className="text-center mb-12">
           <h2 className="text-5xl font-bold mb-4">Choose Your Game</h2>
           <p className="text-muted-foreground text-lg">
-            Five classic games, one platform. Challenge yourself and compete with others!
+            Classic games, one platform. Challenge yourself and compete with others!
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
           {games.map((game) => {
             const Icon = game.icon;
             return (

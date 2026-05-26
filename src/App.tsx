@@ -21,10 +21,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/sudoku" element={<SudokuGame />} />
-            <Route path="/ludo" element={<LudoGame />} />
-            <Route path="/chess" element={<ChessGame />} />
             <Route path="/tic-tac-toe" element={<TicTacToeGame />} />
-            <Route path="/2048" element={<Game2048 />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

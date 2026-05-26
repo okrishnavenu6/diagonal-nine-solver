@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Grid3x3, Dices, Crown, X, Grid2x2 } from "lucide-react";
+import { Grid3x3, X } from "lucide-react";
 import { Moon, Sun, LogIn, LogOut, Trophy, Award } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useState, useEffect } from "react";
@@ -44,36 +44,12 @@ const HomePage = () => {
       path: "/sudoku"
     },
     {
-      id: "ludo",
-      title: "Ludo",
-      description: "Roll the dice and race to the finish",
-      icon: Dices,
-      color: "from-success/20 to-success/5",
-      path: "/ludo"
-    },
-    {
-      id: "chess",
-      title: "Chess",
-      description: "Strategic battle on 64 squares",
-      icon: Crown,
-      color: "from-warning/20 to-warning/5",
-      path: "/chess"
-    },
-    {
       id: "tic-tac-toe",
       title: "Tic-Tac-Toe",
       description: "Get three in a row to win",
       icon: X,
       color: "from-destructive/20 to-destructive/5",
       path: "/tic-tac-toe"
-    },
-    {
-      id: "2048",
-      title: "2048",
-      description: "Combine tiles to reach 2048",
-      icon: Grid2x2,
-      color: "from-accent/40 to-accent/10",
-      path: "/2048"
     }
   ];
 
@@ -126,11 +102,11 @@ const HomePage = () => {
         <div className="text-center mb-12">
           <h2 className="text-5xl font-bold mb-4">Choose Your Game</h2>
           <p className="text-muted-foreground text-lg">
-            Five classic games, one platform. Challenge yourself and compete with others!
+            Classic games, one platform. Challenge yourself and compete with others!
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
           {games.map((game) => {
             const Icon = game.icon;
             return (

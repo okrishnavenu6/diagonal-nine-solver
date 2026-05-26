@@ -6,10 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import HomePage from "./pages/HomePage";
 import SudokuGame from "./pages/SudokuGame";
-import LudoGame from "./pages/LudoGame";
-import ChessGame from "./pages/ChessGame";
 import TicTacToeGame from "./pages/TicTacToeGame";
-import Game2048 from "./pages/Game2048";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -24,10 +21,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/sudoku" element={<SudokuGame />} />
-            <Route path="/ludo" element={<LudoGame />} />
-            <Route path="/chess" element={<ChessGame />} />
             <Route path="/tic-tac-toe" element={<TicTacToeGame />} />
-            <Route path="/2048" element={<Game2048 />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

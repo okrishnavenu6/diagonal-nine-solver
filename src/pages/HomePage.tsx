@@ -44,36 +44,12 @@ const HomePage = () => {
       path: "/sudoku"
     },
     {
-      id: "ludo",
-      title: "Ludo",
-      description: "Roll the dice and race to the finish",
-      icon: Dices,
-      color: "from-success/20 to-success/5",
-      path: "/ludo"
-    },
-    {
-      id: "chess",
-      title: "Chess",
-      description: "Strategic battle on 64 squares",
-      icon: Crown,
-      color: "from-warning/20 to-warning/5",
-      path: "/chess"
-    },
-    {
       id: "tic-tac-toe",
       title: "Tic-Tac-Toe",
       description: "Get three in a row to win",
       icon: X,
       color: "from-destructive/20 to-destructive/5",
       path: "/tic-tac-toe"
-    },
-    {
-      id: "2048",
-      title: "2048",
-      description: "Combine tiles to reach 2048",
-      icon: Grid2x2,
-      color: "from-accent/40 to-accent/10",
-      path: "/2048"
     }
   ];
 

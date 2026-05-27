@@ -81,7 +81,7 @@ const TicTacToeGame = () => {
   // AI turn
   useEffect(() => {
     if (mode !== "ai" || gameOver) return;
-    const aiTurn = (isXNext && aiMark === "X") || (!isXNext && aiMark === "O");
+    const aiTurn = !isXNext; // AI is O
     if (!aiTurn) return;
 
     setAiThinking(true);

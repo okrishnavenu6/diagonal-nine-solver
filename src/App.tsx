@@ -7,6 +7,8 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import HomePage from "./pages/HomePage";
 import SudokuGame from "./pages/SudokuGame";
 import TicTacToeGame from "./pages/TicTacToeGame";
+import UnoLobby from "./pages/UnoLobby";
+import UnoRoom from "./pages/UnoRoom";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -22,6 +24,8 @@ const App = () => (
             <Route path="/" element={<HomePage />} />
             <Route path="/sudoku" element={<SudokuGame />} />
             <Route path="/tic-tac-toe" element={<TicTacToeGame />} />
+            <Route path="/uno" element={<UnoLobby />} />
+            <Route path="/uno/:code" element={<UnoRoom />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

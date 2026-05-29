@@ -304,6 +304,148 @@ export type Database = {
         }
         Relationships: []
       }
+      uno_moves: {
+        Row: {
+          action: string
+          created_at: string
+          id: string
+          payload: Json | null
+          room_id: string
+          seat: number
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          id?: string
+          payload?: Json | null
+          room_id: string
+          seat: number
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          id?: string
+          payload?: Json | null
+          room_id?: string
+          seat?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "uno_moves_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "uno_rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      uno_players: {
+        Row: {
+          eliminated: boolean
+          hand: Json
+          id: string
+          joined_at: string
+          room_id: string
+          said_uno: boolean
+          seat: number
+          user_id: string
+          username: string
+        }
+        Insert: {
+          eliminated?: boolean
+          hand?: Json
+          id?: string
+          joined_at?: string
+          room_id: string
+          said_uno?: boolean
+          seat: number
+          user_id: string
+          username: string
+        }
+        Update: {
+          eliminated?: boolean
+          hand?: Json
+          id?: string
+          joined_at?: string
+          room_id?: string
+          said_uno?: boolean
+          seat?: number
+          user_id?: string
+          username?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "uno_players_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "uno_rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      uno_rooms: {
+        Row: {
+          code: string
+          created_at: string
+          current_seat: number
+          deck: Json
+          direction: number
+          discard_top: Json | null
+          draw_stack: number
+          finished_at: string | null
+          has_passcode: boolean
+          host_id: string
+          id: string
+          max_players: number
+          passcode_hash: string | null
+          rules: string
+          started_at: string | null
+          status: string
+          updated_at: string
+          winner_seat: number | null
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          current_seat?: number
+          deck?: Json
+          direction?: number
+          discard_top?: Json | null
+          draw_stack?: number
+          finished_at?: string | null
+          has_passcode?: boolean
+          host_id: string
+          id?: string
+          max_players?: number
+          passcode_hash?: string | null
+          rules?: string
+          started_at?: string | null
+          status?: string
+          updated_at?: string
+          winner_seat?: number | null
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          current_seat?: number
+          deck?: Json
+          direction?: number
+          discard_top?: Json | null
+          draw_stack?: number
+          finished_at?: string | null
+          has_passcode?: boolean
+          host_id?: string
+          id?: string
+          max_players?: number
+          passcode_hash?: string | null
+          rules?: string
+          started_at?: string | null
+          status?: string
+          updated_at?: string
+          winner_seat?: number | null
+        }
+        Relationships: []
+      }
       user_achievements: {
         Row: {
           achievement_id: string

@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Grid3x3, X } from "lucide-react";
+import { Grid3x3, X, Layers } from "lucide-react";
 import { Moon, Sun, LogIn, LogOut, Trophy, Award } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useState, useEffect } from "react";
@@ -50,6 +50,15 @@ const HomePage = () => {
       icon: X,
       color: "from-destructive/20 to-destructive/5",
       path: "/tic-tac-toe"
+    }
+    ,
+    {
+      id: "uno",
+      title: "UNO Online",
+      description: "Multiplayer rooms · No Mercy rules · 2–6 players",
+      icon: Layers,
+      color: "from-red-500/20 via-yellow-400/20 to-blue-500/20",
+      path: "/uno"
     }
   ];
 
